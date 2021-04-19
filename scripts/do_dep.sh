@@ -15,13 +15,13 @@ stout_alpha="0.15"
 APE="1"
 HYP="1"
 stout="0"
-APE_steps="400"
+APE_steps="4"
 HYP_steps="1"
 stout_steps="0"
 T=8
 R=8
 flux_enabled=1
-wilson_enabled=0
+wilson_enabled=1
 smearing="HYP_APE"
 
 i=$conf_num
