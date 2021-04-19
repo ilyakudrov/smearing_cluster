@@ -130,22 +130,21 @@ int main(int argc, char *argv[]) {
 
   cout << "average plaket unsmeared " << plaket(conf.array) << endl;
 
+  ofstream stream_wilson;
+  ofstream stream_flux;
   // open file
   if (wilson_enabled) {
-    ofstream stream_wilson;
     stream_wilson.open(wilson_path);
   }
   if (flux_enabled) {
-    ofstream stream_flux;
     stream_flux.open(flux_path);
   }
 
+  vector<FLOAT> wilson_loop;
+
+  vector<int> T_sizes = {8, 16};
+  vector<int> R_sizes = {8, 16};
   if (wilson_enabled) {
-    vector<FLOAT> wilson_loop;
-
-    vector<int> T_sizes = {8, 16};
-    vector<int> R_sizes = {8, 16};
-
     stream_wilson << "smearing_step";
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
@@ -165,20 +164,20 @@ int main(int argc, char *argv[]) {
     stream_wilsonx << endl;
   }
 
+  double c = plaket_time(conf.array);
+  double a, b;
+  double aver[2];
+  result vec_wilson;
+  vector<FLOAT> vec_plaket_time;
+  vector<FLOAT> flux_res;
+  vector<FLOAT> flux_tmp;
+  int d_min;
+  int d_max;
+  int x_trans = 0;
+  vector<int> T_sizes = {8, 16};
+  vector<int> R_sizes = {8, 16};
   if (flux_enabled) {
-    double c = plaket_time(conf.array);
-    double a, b;
-    double aver[2];
-    result vec_wilson;
-    vector<FLOAT> vec_plaket_time;
     vec_plaket_time = calculate_plaket_time_tr(conf.array);
-    vector<FLOAT> flux_res;
-    vector<FLOAT> flux_tmp;
-    int d_min;
-    int d_max;
-    int x_trans = 0;
-    vector<int> T_sizes = {8, 16};
-    vector<int> R_sizes = {8, 16};
 
     stream_flux << "smearing_step";
     for (int i = 0; i < 2; i++) {
