@@ -148,20 +148,20 @@ int main(int argc, char *argv[]) {
     stream_wilson << "smearing_step";
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        stream_wilsonx << ",wilson_T=" << T_sizes[i] << "_R=" << R_sizes[j];
+        stream_wilson << ",wilson_T=" << T_sizes[i] << "_R=" << R_sizes[j];
       }
     }
-    stream_wilsonx << endl;
+    stream_wilson << endl;
 
-    stream_wilsonx << 0;
+    stream_wilson << 0;
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
         wilson_loop =
             wilson(conf.array, R_sizes[j], R_sizes[j], T_sizes[i], T_sizes[i]);
-        stream_wilsonx << "," << wilson_loop[0];
+        stream_wilson << "," << wilson_loop[0];
       }
     }
-    stream_wilsonx << endl;
+    stream_wilson << endl;
   }
 
   double c = plaket_time(conf.array);
@@ -174,8 +174,7 @@ int main(int argc, char *argv[]) {
   int d_min;
   int d_max;
   int x_trans = 0;
-  vector<int> T_sizes = {8, 16};
-  vector<int> R_sizes = {8, 16};
+  int T, R;
   if (flux_enabled) {
     vec_plaket_time = calculate_plaket_time_tr(conf.array);
 
@@ -327,21 +326,6 @@ int main(int argc, char *argv[]) {
                   search_time = end_time - start_time;
                   cout<<"i="<<i<<" iteration of APE time:
   "<<search_time*1./CLOCKS_PER_SEC<<endl;
-          }
-  }*/
-  cout << "average plaket smeared " << plaket(conf.array) << endl;
-  string path;
-  if (wilson_enabled) {
-    for (int j = 0; j < 3; j++) {
-      path = string(wilson_path) + "T=" + to_string(T + j * 4) +
-             "_R=" + to_string(R + j * 4) + "_" + string(conf_num);
-      wilson_res[j].write(path.c_str());
-    }
-  }
-  /*if(flux_enabled){
-          for(int j = 0;j < 3;j++){
-                  path = string(flux_path) + "T=" + to_string(T+j*4) + "_R=" +
-  to_string(R+j*4) + "_" + string(conf_num); flux_res[j].write(path.c_str());
           }
   }*/
   if (wilson_enabled) {
