@@ -4,8 +4,8 @@ OBJ_PATH=/home/clusters/rrcmpi/kudrov/general_code/lib/cpu/obj
 OBJ_FILES=$(OBJ_PATH)/link.o $(OBJ_PATH)/result.o $(OBJ_PATH)/data.o $(OBJ_PATH)/matrix.o $(OBJ_PATH)/basic_observables.o $(OBJ_PATH)/flux_tube.o $(OBJ_PATH)/smearing.o
 FLOAT=double
 FLAGS=-D DOUBLE
-GCC=$(HOME)/gcc-9.2.0-install/bin/g++
-MATRIX=abelian
+GCC=/home/itep/kudrov/installed/gcc-9/bin/g++
+MATRIX=su2
 
 smearing: smearing.o
 	$(GCC) smearing.o $(OBJ_FILES) -o exe/smearing_$(MATRIX)

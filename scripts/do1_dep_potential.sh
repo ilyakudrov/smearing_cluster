@@ -62,13 +62,13 @@ wilson_path="${wilson_path}/wilson_loops_${APE_alpha}_$a$b$c$d"
 qsub -q long -v conf_path=${conf_path},conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
 stout_steps=${stout_steps},wilson_enabled=${wilson_enabled},L_spat=${L_spat},L_time=${L_time},T_min=${T_min},T_max=${T_max},R_min=${R_min},R_max=${R_max},calculation_step_APE=${calculation_step_APE}\
-wilson_path=${wilson_path},matrix_type=${matrix_type} -o "${log_path}/$a$b$c$d.o" -e "${log_path}/$a$b$c$d.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep.sh
+wilson_path=${wilson_path},matrix_type=${matrix_type} -o "${log_path}/$a$b$c$d.o" -e "${log_path}/$a$b$c$d.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_potential.sh
 while [ $? -ne 0 ]
 do
 qsub -q long -v conf_path=${conf_path},conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
 stout_steps=${stout_steps},wilson_enabled=${wilson_enabled},L_spat=${L_spat},L_time=${L_time},T_min=${T_min},T_max=${T_max},R_min=${R_min},R_max=${R_max},calculation_step_APE=${calculation_step_APE}\
-wilson_path=${wilson_path},matrix_type=${matrix_type} -o "${log_path}/$a$b$c$d.o" -e "${log_path}/$a$b$c$d.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep.sh
+wilson_path=${wilson_path},matrix_type=${matrix_type} -o "${log_path}/$a$b$c$d.o" -e "${log_path}/$a$b$c$d.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_potential.sh
 done
 
 fi
