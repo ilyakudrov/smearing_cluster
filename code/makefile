@@ -5,7 +5,7 @@ OBJ_FILES=$(OBJ_PATH)/link.o $(OBJ_PATH)/result.o $(OBJ_PATH)/data.o $(OBJ_PATH)
 FLOAT=double
 FLAGS=-D DOUBLE
 GCC=$(HOME)/gcc-9.2.0-install/bin/g++
-MATRIX=su2	
+MATRIX=abelian
 
 smearing: smearing.o
 	$(GCC) smearing.o $(OBJ_FILES) -o exe/smearing_$(MATRIX)

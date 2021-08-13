@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
 
   string conf_format;
   string conf_path;
-  string conf_num;
   // string smeared_path;
   string wilson_path;
   string flux_path;
@@ -54,17 +53,17 @@ int main(int argc, char *argv[]) {
     } else if (string(argv[i]) == "-stout_alpha") {
       stout_alpha = atof(argv[++i]);
     } else if (string(argv[i]) == "-APE") {
-      APE_enabled = atof(argv[++i]);
+      APE_enabled = stoi(argv[++i]);
     } else if (string(argv[i]) == "-HYP") {
-      HYP_enabled = atof(argv[++i]);
+      HYP_enabled = stoi(argv[++i]);
     } else if (string(argv[i]) == "-stout") {
-      stout_enabled = atof(argv[++i]);
+      stout_enabled = stoi(argv[++i]);
     } else if (string(argv[i]) == "-APE_steps") {
-      APE_steps = atof(argv[++i]);
+      APE_steps = stoi(argv[++i]);
     } else if (string(argv[i]) == "-HYP_steps") {
-      HYP_steps = atof(argv[++i]);
+      HYP_steps = stoi(argv[++i]);
     } else if (string(argv[i]) == "-stout_steps") {
-      stout_steps = atof(argv[++i]);
+      stout_steps = stoi(argv[++i]);
     } else if (string(argv[i]) == "-L_spat") {
       L_spat = stoi(string(argv[++i]));
     } else if (string(argv[i]) == "-L_time") {
@@ -73,15 +72,12 @@ int main(int argc, char *argv[]) {
       wilson_path = argv[++i];
     } else if (string(argv[i]) == "-flux_path") {
       flux_path = argv[++i];
-    }
     // else if (string(argv[i]) == "-T") { T = stoi(string(argv[++i])); }
     // else if (string(argv[i]) == "-R") { R = stoi(string(argv[++i])); }
-    else if (string(argv[i]) == "-flux_enabled") {
-      flux_enabled = atof(argv[++i]);
+    } else if (string(argv[i]) == "-flux_enabled") {
+      flux_enabled = stoi(argv[++i]);
     } else if (string(argv[i]) == "-wilson_enabled") {
-      wilson_enabled = atof(argv[++i]);
-    } else if (string(argv[i]) == "-conf_num") {
-      conf_num = argv[++i];
+      wilson_enabled = stoi(argv[++i]);
     }
   }
 
@@ -104,13 +100,12 @@ int main(int argc, char *argv[]) {
   cout << "APE_steps " << APE_steps << endl;
   cout << "HYP_steps " << HYP_steps << endl;
   cout << "stout_steps " << stout_steps << endl;
-  cout << "L_spat " << -L_spat << endl;
+  cout << "L_spat " << L_spat << endl;
   cout << "L_time " << L_time << endl;
   cout << "wilson_path " << wilson_path << endl;
   cout << "flux_path " << flux_path << endl;
   cout << "flux_enabled " << flux_enabled << endl;
   cout << "wilson_enabled " << wilson_enabled << endl;
-  cout << "conf_num " << conf_num << endl;
   cout << endl;
 
   data<MATRIX> conf;
@@ -213,8 +208,8 @@ int main(int argc, char *argv[]) {
   }
 
   if (HYP_enabled == 1) {
+    start_time = clock();
     for (int HYP_step = 0; HYP_step < HYP_steps; HYP_step++) {
-      start_time = clock();
 
       vector<vector<MATRIX>> smearing_first;
       vector<vector<MATRIX>> smearing_second;
@@ -236,7 +231,6 @@ int main(int argc, char *argv[]) {
       }
 
       if (flux_enabled) {
-        cout << "flux_enabled" << endl;
         stream_flux << HYP_step + 1;
         for (int i = 0; i < 2; i++) {
           T = T_sizes[i];
@@ -266,22 +260,25 @@ int main(int argc, char *argv[]) {
          << " iterations of HYP time: " << search_time * 1. / CLOCKS_PER_SEC
          << endl;
   }
+
   if (APE_enabled == 1) {
+    start_time = clock();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
-      start_time = clock();
 
       conf.array = smearing_APE(conf.array, APE_alpha);
 
-      if (wilson_enabled) {
-        stream_flux << APE_step + HYP_steps + 1;
-        for (int i = 0; i < 2; i++) {
-          for (int j = 0; j < 2; j++) {
-            wilson_loop = wilson(conf.array, R_sizes[j], R_sizes[j], T_sizes[i],
-                                 T_sizes[i]);
-            stream_wilson << "," << wilson_loop[0];
+      if (APE_step % 5 == 0) {
+        if (wilson_enabled) {
+          stream_wilson << APE_step + HYP_steps + 1;
+          for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+              wilson_loop = wilson(conf.array, R_sizes[j], R_sizes[j], T_sizes[i],
+                                   T_sizes[i]);
+              stream_wilson << "," << wilson_loop[0];
+            }
           }
-        }
-        stream_wilson << endl;
+          stream_wilson << endl;
+	}
       }
 
       if (APE_step % 5 == 0) {

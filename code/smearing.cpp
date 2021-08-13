@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
         		cout<<"i="<<i<<" iteration of APE time: "<<search_time*1./CLOCKS_PER_SEC<<endl;
 		}
 	}
-	if(stout_enabled == 1){
+	/*if(stout_enabled == 1){
                 for(int i = 0;i < stout_steps;i++){
                         start_time =  clock();
 
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
                         search_time = end_time - start_time;
                         cout<<"i="<<i<<" iteration of APE time: "<<search_time*1./CLOCKS_PER_SEC<<endl;
                 }
-        }
+        }*/
 	cout<<"average plaket smeared "<<plaket(conf.array)<<endl;
 	conf.write_double(smeared_path);
 }
