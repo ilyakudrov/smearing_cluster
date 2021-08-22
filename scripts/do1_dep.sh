@@ -1,6 +1,7 @@
 #!/bin/bash
-mu="0.00"
-conf_size="32^4"
+mu="0.05"
+conf_size="40^4"
+conf_type="qc2dstag"
 
 HYP_alpha1="0.75"
 HYP_alpha2="0.6"
@@ -17,7 +18,7 @@ flux_enabled=1
 wilson_enabled=1
 smearing="HYP2_APE"
 
-source "/lustre/rrcmpi/kudrov/conf/${conf_size}/mu${mu}/parameters"
+source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
 
 conf_format="double_fortran"
 #matrix_type="abelian"
@@ -38,13 +39,18 @@ mkdir -p ${log_path}
 for((i=${conf_start[j]};i<=${conf_end[j]};i++))
 do
 
+conf_path_="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
+conf_path_monopole="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopole/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopole_$a$b$c$d"
+conf_path_monopoless="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopoless/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopoless_$a$b$c$d"
+
 a=$(($i/1000))
 b=$((($i-$a*1000)/100))
 c=$((($i-$a*1000-$b*100)/10))
 d=$(($i-$a*1000-$b*100-$c*10))
 
-#conf_path="/home/clusters/rrcmpi/kudrov/conf/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
-conf_path="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/${monopole}/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_${monopole}_$a$b$c$d"
+conf_test="conf_path_${monopole}"
+
+conf_path=("${!conf_test}")
 
 if [ -f ${conf_path} ] ; then
 

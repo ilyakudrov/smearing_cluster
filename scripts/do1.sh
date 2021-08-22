@@ -1,6 +1,7 @@
 #!/bin/bash
 mu="0.45"
 conf_size="40^4"
+conf_type="qc2dstag"
 
 HYP_alpha1="0.75"
 HYP_alpha2="0.6"
@@ -17,7 +18,7 @@ smearing="HYP2_APE290"
 
 calculate_absent=true
 
-source "/lustre/rrcmpi/kudrov/conf/${conf_size}/mu${mu}/parameters"
+source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
 
 conf_format="double_fortran"
 #matrix_type="su2"
@@ -46,7 +47,7 @@ b=$((($i-$a*1000)/100))
 c=$((($i-$a*1000-$b*100)/10))
 d=$(($i-$a*1000-$b*100-$c*10))
 
-#conf_path="/home/clusters/rrcmpi/kudrov/conf/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
+#conf_path="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
 conf_path="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/${monopole}/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_${monopole}_$a$b$c$d"
 #conf_path="/home/clusters/01/vborn/Copy_from_lustre/SU2_dinam/MAG/mu0p0_b1p8_m0p0075_lam0p00075/OFFD/CON_OFF_MAG_$b$c$d.LAT"
 
