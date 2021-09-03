@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
                   << std::endl;
   }
 
-  std::map<std::tuple<int, int>, std::vector<su2>> APE_2d =
+  std::map<std::tuple<int, int>, std::vector<MATRIX>> APE_2d =
       smearing_APE_2d(conf.array, APE_alpha);
 
   std::map<std::tuple<int, int>, FLOAT> wilson_spat;
