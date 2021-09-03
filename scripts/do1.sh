@@ -3,79 +3,98 @@ mu="0.45"
 conf_size="40^4"
 conf_type="qc2dstag"
 
-HYP_alpha1="0.75"
-HYP_alpha2="0.6"
-HYP_alpha3="0.3"
-APE_alpha="0.7"
-stout_alpha="0.15"
 APE="1"
 HYP="1"
-stout="0"
-APE_steps="290"
+APE_steps="240"
 HYP_steps="2"
-stout_steps="0"
-smearing="HYP2_APE290"
 
 calculate_absent=true
 
 source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
 
-conf_format="double_fortran"
+script_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do.sh"
+
+#conf_format="double_fortran"
 #matrix_type="su2"
-monopole="monopoless"
+#monopole="monopoless"
 #monopole="monopole"
-#monopole=""
+monopole="/"
 
-#chains=( "" )
-#conf_start=( 31 )
-#conf_end=( 400 )
+number_of_jobs=100
+confs_total=0
 
-#chains=( "s0" )
-#conf_start=( 201 )
-#conf_end=( 201 )
+for i  in ${!chains[@]} ; do
+confs_total=$(( $confs_total + ${conf_end[$i]} - ${conf_start[$i]} + 1 ))
+done
 
-for j in "${!chains[@]}"; do
+confs_per_job=$(( ${confs_total} / ${number_of_jobs} + 1 ))
+chain_current=0
+jobs_done=0
 
-log_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/logs/smearing/${monopole}/${conf_type}/${conf_size}/mu${mu}/${smearing}/${chains[j]}"
+for((i=0;i<${number_of_jobs};i++))
+do
+
+conf1=$(( ${conf_start[$chain_current]} + ${confs_per_job} * ($i - ${jobs_done}) ))
+conf2=$(( ${conf_start[$chain_current]} + ${confs_per_job} * ($i - ${jobs_done} + 1) - 1 ))
+
+if [[ $conf2 -ge ${conf_end[$chain_current]} ]] ; then
+conf2=$(( ${conf_end[$chain_current]} ))
+fi
+
+if [[ $chain_current -ge ${#chains[@]} ]] ; then
+break
+fi
+
+log_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/logs/smearing/${monopole}/${conf_type}/${conf_size}/mu${mu}/${smearing}/${chains[${chain_current}]}"
 mkdir -p ${log_path}
 
-for((i=${conf_start[j]};i<=${conf_end[j]};i++))
-do
+#echo ${chains[${chain_current}]} $conf1-$conf2
 
-a=$(($i/1000))
-b=$((($i-$a*1000)/100))
-c=$((($i-$a*1000-$b*100)/10))
-d=$(($i-$a*1000-$b*100-$c*10))
+a1=$((${conf1}/1000))
+b1=$(((${conf1}-$a1*1000)/100))
+c1=$(((${conf1}-$a1*1000-$b1*100)/10))
+d1=$((${conf1}-$a1*1000-$b1*100-$c1*10))
 
-#conf_path="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
-conf_path="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/${monopole}/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_${monopole}_$a$b$c$d"
-#conf_path="/home/clusters/01/vborn/Copy_from_lustre/SU2_dinam/MAG/mu0p0_b1p8_m0p0075_lam0p00075/OFFD/CON_OFF_MAG_$b$c$d.LAT"
+a2=$((${conf2}/1000))
+b2=$(((${conf2}-$a2*1000)/100))
+c2=$(((${conf2}-$a2*1000-$b2*100)/10))
+d2=$((${conf2}-$a2*1000-$b2*100-$c2*10))
 
-if [ -f ${conf_path} ] ; then
+#echo ${conf_type}
+#echo ${matrix_type}
+#echo ${conf_format}
+#echo ${L_spat}
+#echo ${L_time}
+#echo ${conf_size}
+#echo ${conf1}
+#echo ${conf2}
+#echo ${calculate_absent}
+#echo ${monopole}
+#echo ${mu}
+#echo ${chains[$chain_current]}
+#echo ${APE}
+#echo ${HYP}
+#echo ${APE_steps}
+#echo ${HYP_steps}
 
-#smeared_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/confs_smeared/${conf_type}/${conf_size}/${smearing}/mu${mu}/${chains[j]}"
-smeared_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/confs_smeared/${monopole}/${conf_type}/${conf_size}/${smearing}/mu${mu}/${chains[j]}"
-#smeared_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/confs_smeared/${monopole}/su2_dynam/${conf_size}/${smearing}/mu${mu}"
-mkdir -p ${smeared_path}
-smeared_path="${smeared_path}/conf_APE_alpha=${APE_alpha}_$a$b$c$d"
+#chain=$((${chains[chain_current]}))
+#echo $chain
 
-if [ ! -f ${smeared_path} ] || [  ! ${calculate_absent} ] ; then
-
-qsub -q long -v conf_path=${conf_path},conf_type=${conf_type},smeared_path=${smeared_path},matrix_type=${matrix_type},conf_format=${conf_format},L_spat=${L_spat},L_time=${L_time},\
-conf_size=${conf_size},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},\
-APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},stout_steps=${stout_steps},\
- -o "${log_path}/$a$b$c$d.o" -e "${log_path}/$a$b$c$d.e"  /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do.sh
+qsub -q long -v conf_type=${conf_type},matrix_type=${matrix_type},conf_format=${conf_format},L_spat=${L_spat},L_time=${L_time},\
+conf_size=${conf_size},conf1=${conf1},conf2=${conf2},calculate_absent=${calculate_absent},monopole=${monopole},mu=${mu},chain=${chains[$chain_current]},\
+APE=${APE},HYP=${HYP},APE_steps=${APE_steps},HYP_steps=${HYP_steps}\
+ -o "${log_path}/$a1$b1$c1$d1-$a2$b2$c2$d2.o" -e "${log_path}/$a1$b1$c1$d1-$a2$b2$c2$d2.e" ${script_path}
 while [ $? -ne 0 ]
 do
-qsub -q long -v conf_path=${conf_path},conf_type=${conf_type},smeared_path=${smeared_path},matrix_type=${matrix_type},conf_format=${conf_format},L_spat=${L_spat},L_time=${L_time},\
-conf_size=${conf_size},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},\
-APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},stout_steps=${stout_steps},\
- -o "${log_path}/$a$b$c$d.o" -e "${log_path}/$a$b$c$d.e"  /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do.sh
+qsub -q long -v conf_type=${conf_type},matrix_type=${matrix_type},conf_format=${conf_format},L_spat=${L_spat},L_time=${L_time},\
+conf_size=${conf_size},conf1=${conf1},conf2=${conf2},calculate_absent=${calculate_absent},monopole=${monopole},mu=${mu},chain=${chains[$chain_current]},\
+APE=${APE},HYP=${HYP},APE_steps=${APE_steps},HYP_steps=${HYP_steps}\
+ -o "${log_path}/$a1$b1$c1$d1-$a2$b2$c2$d2.o" -e "${log_path}/$a1$b1$c1$d1-$a2$b2$c2$d2.e" ${script_path}
 done
 
+if [[ $conf2 -ge ${conf_end[$chain_current]} ]] ; then
+chain_current=$(( $chain_current + 1 ))
+jobs_done=$(( ${i} + 1 ))
 fi
 
-fi
-
-done
 done

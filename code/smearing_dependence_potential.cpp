@@ -152,6 +152,7 @@ int main(int argc, char *argv[]) {
                     << wilson_offaxis_result[i].space_size << ","
                     << wilson_offaxis_result[i].wilson_loop << std::endl;
     }
+    wilson_offaxis_result.clear();
   }
 
   if (HYP_enabled == 1) {
@@ -164,6 +165,8 @@ int main(int argc, char *argv[]) {
       smearing_second =
           smearing_second_full(conf.array, smearing_first, HYP_alpha2);
       conf.array = smearing_HYP(conf.array, smearing_second, HYP_alpha1);
+      smearing_first.clear();
+      smearing_second.clear();
 
       if (wilson_enabled) {
         wilson_offaxis_result =
@@ -175,6 +178,7 @@ int main(int argc, char *argv[]) {
                         << wilson_offaxis_result[i].space_size << ","
                         << wilson_offaxis_result[i].wilson_loop << std::endl;
         }
+        wilson_offaxis_result.clear();
       }
     }
 
@@ -203,6 +207,7 @@ int main(int argc, char *argv[]) {
                           << wilson_offaxis_result[i].wilson_loop << std::endl;
           }
         }
+        wilson_offaxis_result.clear();
       }
     }
 

@@ -39,18 +39,18 @@ mkdir -p ${log_path}
 for((i=${conf_start[j]};i<=${conf_end[j]};i++))
 do
 
-conf_path_="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
-conf_path_monopole="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopole/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopole_$a$b$c$d"
-conf_path_monopoless="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopoless/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopoless_$a$b$c$d"
-
 a=$(($i/1000))
 b=$((($i-$a*1000)/100))
 c=$((($i-$a*1000-$b*100)/10))
 d=$(($i-$a*1000-$b*100-$c*10))
 
-conf_test="conf_path_${monopole}"
+conf_path_="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
+conf_path_monopole="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopole/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopole_$a$b$c$d"
+conf_path_monopoless="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopoless/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopoless_$a$b$c$d"
 
-conf_path=("${!conf_test}")
+path1="conf_path_${monopole}"
+
+conf_path=("${!path1}")
 
 if [ -f ${conf_path} ] ; then
 

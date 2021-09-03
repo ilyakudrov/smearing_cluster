@@ -1,6 +1,6 @@
 #!/bin/bash
-mu="0.45"
-conf_size="40^4"
+mu="0.00"
+conf_size="32^4"
 conf_type="qc2dstag"
 
 HYP_alpha1="0.75"
@@ -11,19 +11,19 @@ stout_alpha="0.15"
 APE="1"
 HYP="1"
 stout="0"
-APE_steps="300"
+APE_steps="400"
 HYP_steps="2"
 stout_steps="0"
 wilson_enabled=1
 smearing="HYP2_APE"
 
-calculate_absent=true
+calculate_absent=false
 
 T_min=6
 T_max=16
 R_min=4
 R_max=20
-calculation_step_APE=10
+calculation_step_APE=30
 
 source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
 
@@ -51,8 +51,13 @@ b=$((($i-$a*1000)/100))
 c=$((($i-$a*1000-$b*100)/10))
 d=$(($i-$a*1000-$b*100-$c*10))
 
-#conf_path="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
-conf_path="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/${monopole}/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_${monopole}_$a$b$c$d"
+conf_path_="/home/clusters/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/${chains[j]}/confs/CONF$a$b$c$d"
+conf_path_monopole="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopole/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopole_$a$b$c$d"
+conf_path_monopoless="/home/clusters/rrcmpi/kudrov/decomposition/confs_decomposed/monopoless/qc2dstag/${conf_size}/mu${mu}/${chains[j]}/conf_monopoless_$a$b$c$d"
+
+path1="conf_path_${monopole}"
+
+conf_path=("${!path1}")
 
 if [ -f ${conf_path} ] ; then
 
@@ -62,7 +67,7 @@ wilson_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/smearing_test/result/
 mkdir -p ${wilson_path}
 wilson_path="${wilson_path}/wilson_loops_${APE_alpha}_$a$b$c$d"
 
-if [ ! -f ${wilson_path} ] || [  ! ${calculate_absent} ] ; then
+if ! [ -f ${wilson_path} ] || ! ${calculate_absent} ; then
 
 qsub -q long -v conf_path=${conf_path},conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
