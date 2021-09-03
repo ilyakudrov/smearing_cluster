@@ -24,3 +24,9 @@ smearing_dependence_potential: smearing_dependence_potential.o
 	rm smearing_dependence_potential.o
 smearing_dependence_potential.o: smearing_dependence_potential.cpp
 	$(GCC) -O4 smearing_dependence_potential.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential.o
+
+smearing_dependence_potential_spatial: smearing_dependence_potential_spatial.o
+	$(GCC) smearing_dependence_potential_spatial.o $(OBJ_FILES) -o exe/smearing_dependence_potential_spatial_$(MATRIX)
+	rm smearing_dependence_potential_spatial.o
+smearing_dependence_potential_spatial.o: smearing_dependence_potential_spatial.cpp
+	$(GCC) -O4 smearing_dependence_potential_spatial.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential_spatial.o
