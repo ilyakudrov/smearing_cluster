@@ -113,13 +113,13 @@ int main(int argc, char *argv[]) {
   }
 
   std::map<std::tuple<int, int>, std::vector<su2>> APE_2d =
-      smearing_APE_2d(conf_qc2dstag.array, alpha_APE);
+      smearing_APE_2d(conf.array, APE_alpha);
 
   std::map<std::tuple<int, int>, FLOAT> wilson_spat;
 
   if (wilson_enabled) {
     wilson_spat =
-        wilson_spatial(conf_qc2dstag.array, APE_2d, T_min, T_max, R_min, R_max);
+        wilson_spatial(conf.array, APE_2d, T_min, T_max, R_min, R_max);
 
     for (auto it = wilson_spat.begin(); it != wilson_spat.end(); ++it) {
       stream_wilson << "1,"
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
           wilson_spat = wilson_spatial(conf_qc2dstag.array, APE_2d, T_min,
                                        T_max, R_min, R_max);
 
-          for (int i = 0; i < wilson_offaxis_result.size(); i++) {
+          for (auto it = wilson_spat.begin(); it != wilson_spat.end(); ++it) {
             stream_wilson << APE_step + 1 << "," << std::get<0>(it->first)
                           << "," << std::get<1>(it->first) << "," << it->second
                           << std::endl;
