@@ -132,12 +132,12 @@ int main(int argc, char *argv[]) {
     start_time = clock();
     for (int APE_step = 1; APE_step <= APE_steps; APE_step++) {
 
-      smearing_APE_2d_continue(APE_2d, alpha_APE);
+      smearing_APE_2d_continue(APE_2d, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
         if (wilson_enabled) {
-          wilson_spat = wilson_spatial(conf_qc2dstag.array, APE_2d, T_min,
-                                       T_max, R_min, R_max);
+          wilson_spat =
+              wilson_spatial(conf.array, APE_2d, T_min, T_max, R_min, R_max);
 
           for (auto it = wilson_spat.begin(); it != wilson_spat.end(); ++it) {
             stream_wilson << APE_step + 1 << "," << std::get<0>(it->first)
