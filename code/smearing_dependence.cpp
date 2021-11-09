@@ -72,8 +72,8 @@ int main(int argc, char *argv[]) {
       wilson_path = argv[++i];
     } else if (string(argv[i]) == "-flux_path") {
       flux_path = argv[++i];
-    // else if (string(argv[i]) == "-T") { T = stoi(string(argv[++i])); }
-    // else if (string(argv[i]) == "-R") { R = stoi(string(argv[++i])); }
+      // else if (string(argv[i]) == "-T") { T = stoi(string(argv[++i])); }
+      // else if (string(argv[i]) == "-R") { R = stoi(string(argv[++i])); }
     } else if (string(argv[i]) == "-flux_enabled") {
       flux_enabled = stoi(argv[++i]);
     } else if (string(argv[i]) == "-wilson_enabled") {
@@ -164,8 +164,7 @@ int main(int argc, char *argv[]) {
   double aver[2];
   result vec_wilson;
   vector<FLOAT> vec_plaket_time;
-  vector<FLOAT> flux_res;
-  vector<FLOAT> flux_tmp;
+  std::map<int, FLOAT> flux_tmp;
   int d_min;
   int d_max;
   int x_trans = 0;
@@ -200,7 +199,7 @@ int main(int argc, char *argv[]) {
         stream_flux << "," << flux_tmp[0];
         flux_tmp = wilson_plaket_correlator_electric(
             vec_wilson.array, vec_plaket_time, R, T, x_trans, d_min, d_max);
-        stream_flux << "," << flux_tmp[0];
+        stream_flux << "," << flux_tmp[d_min];
         stream_flux << "," << b;
       }
     }
@@ -246,7 +245,7 @@ int main(int argc, char *argv[]) {
             stream_flux << "," << flux_tmp[0];
             flux_tmp = wilson_plaket_correlator_electric(
                 vec_wilson.array, vec_plaket_time, R, T, x_trans, d_min, d_max);
-            stream_flux << "," << flux_tmp[0];
+            stream_flux << "," << flux_tmp[d_min];
             stream_flux << "," << b;
           }
         }
@@ -272,13 +271,13 @@ int main(int argc, char *argv[]) {
           stream_wilson << APE_step + HYP_steps + 1;
           for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-              wilson_loop = wilson(conf.array, R_sizes[j], R_sizes[j], T_sizes[i],
-                                   T_sizes[i]);
+              wilson_loop = wilson(conf.array, R_sizes[j], R_sizes[j],
+                                   T_sizes[i], T_sizes[i]);
               stream_wilson << "," << wilson_loop[0];
             }
           }
           stream_wilson << endl;
-	}
+        }
       }
 
       if (APE_step % 5 == 0) {
@@ -299,7 +298,7 @@ int main(int argc, char *argv[]) {
               flux_tmp = wilson_plaket_correlator_electric(
                   vec_wilson.array, vec_plaket_time, R, T, x_trans, d_min,
                   d_max);
-              stream_flux << "," << flux_tmp[0];
+              stream_flux << "," << flux_tmp[d_min];
               stream_flux << "," << b;
             }
           }
