@@ -10,31 +10,31 @@ MATRIX=abelian
 all: smearing smearing_dependence smearing_dependence_potential smearing_dependence_potential_spatial
 
 smearing: smearing.o
-	$(GCC) smearing.o $(OBJ_FILES) -o exe/smearing_$(MATRIX) -fopenmp
+	$(GCC) smearing.o $(OBJ_FILES) -o exe/smearing_$(MATRIX)
 	rm smearing.o
 smearing.o: smearing.cpp
-	$(GCC) -O4 smearing.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing.o -fopenmp
+	$(GCC) -O4 smearing.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing.o
 
 smearing_dependence: smearing_dependence.o
-	$(GCC) smearing_dependence.o $(OBJ_FILES) -o exe/smearing_dependence_$(MATRIX) -fopenmp
+	$(GCC) smearing_dependence.o $(OBJ_FILES) -o exe/smearing_dependence_$(MATRIX)
 	rm smearing_dependence.o
 smearing_dependence.o: smearing_dependence.cpp
-	$(GCC) -O4 smearing_dependence.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence.o -fopenmp
+	$(GCC) -O4 smearing_dependence.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence.o
 
 smearing_dependence_potential: smearing_dependence_potential.o
-	$(GCC) smearing_dependence_potential.o $(OBJ_FILES) -o exe/smearing_dependence_potential_$(MATRIX) -fopenmp
+	$(GCC) smearing_dependence_potential.o $(OBJ_FILES) -o exe/smearing_dependence_potential_$(MATRIX)
 	rm smearing_dependence_potential.o
 smearing_dependence_potential.o: smearing_dependence_potential.cpp
-	$(GCC) -O4 smearing_dependence_potential.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential.o -fopenmp
+	$(GCC) -O4 smearing_dependence_potential.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential.o
 
 smearing_dependence_potential1: smearing_dependence_potential1.o
-	$(GCC) smearing_dependence_potential1.o $(OBJ_FILES) -o exe/smearing_dependence_potential1_$(MATRIX) -fopenmp
+	$(GCC) smearing_dependence_potential1.o $(OBJ_FILES) -o exe/smearing_dependence_potential1_$(MATRIX)
 	rm smearing_dependence_potential1.o
 smearing_dependence_potential1.o: smearing_dependence_potential1.cpp
-	$(GCC) -O4 smearing_dependence_potential1.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential1.o -fopenmp
+	$(GCC) -O4 smearing_dependence_potential1.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential1.o
 
 smearing_dependence_potential_spatial: smearing_dependence_potential_spatial.o
-	$(GCC) smearing_dependence_potential_spatial.o $(OBJ_FILES) -o exe/smearing_dependence_potential_spatial_$(MATRIX) -fopenmp
+	$(GCC) smearing_dependence_potential_spatial.o $(OBJ_FILES) -o exe/smearing_dependence_potential_spatial_$(MATRIX)
 	rm smearing_dependence_potential_spatial.o
 smearing_dependence_potential_spatial.o: smearing_dependence_potential_spatial.cpp
-	$(GCC) -O4 smearing_dependence_potential_spatial.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential_spatial.o -fopenmp
+	$(GCC) -O4 smearing_dependence_potential_spatial.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential_spatial.o
