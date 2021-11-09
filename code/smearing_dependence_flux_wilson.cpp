@@ -128,8 +128,7 @@ int main(int argc, char *argv[]) {
   double aver[2];
   result vec_wilson;
   vector<FLOAT> vec_plaket_time;
-  vector<FLOAT> flux_res;
-  vector<FLOAT> flux_tmp;
+  std::map<int, FLOAT> flux_tmp;
   int d_min;
   int d_max;
   int x_trans = 0;
@@ -165,7 +164,7 @@ int main(int argc, char *argv[]) {
         stream_flux << "," << flux_tmp[0];
         flux_tmp = wilson_plaket_correlator_electric(
             vec_wilson.array, vec_plaket_time, R, T, x_trans, d_min, d_max);
-        stream_flux << "," << flux_tmp[0];
+        stream_flux << "," << flux_tmp[d_min];
         stream_flux << "," << b;
       }
     }
@@ -201,7 +200,7 @@ int main(int argc, char *argv[]) {
             stream_flux << "," << flux_tmp[0];
             flux_tmp = wilson_plaket_correlator_electric(
                 vec_wilson.array, vec_plaket_time, R, T, x_trans, d_min, d_max);
-            stream_flux << "," << flux_tmp[0];
+            stream_flux << "," << flux_tmp[d_min];
             stream_flux << "," << b;
           }
         }
@@ -240,7 +239,7 @@ int main(int argc, char *argv[]) {
               flux_tmp = wilson_plaket_correlator_electric(
                   vec_wilson.array, vec_plaket_time, R, T, x_trans, d_min,
                   d_max);
-              stream_flux << "," << flux_tmp[0];
+              stream_flux << "," << flux_tmp[d_min];
               stream_flux << "," << b;
             }
           }
