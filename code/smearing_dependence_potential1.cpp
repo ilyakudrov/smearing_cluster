@@ -38,12 +38,28 @@ int main(int argc, char *argv[]) {
       conf_format = argv[++i];
     } else if (string(argv[i]) == "-conf_path") {
       conf_path = argv[++i];
+    } else if (string(argv[i]) == "-HYP_alpha1") {
+      HYP_alpha1 = atof(argv[++i]);
+    } else if (string(argv[i]) == "-HYP_alpha2") {
+      HYP_alpha2 = atof(argv[++i]);
+    } else if (string(argv[i]) == "-HYP_alpha3") {
+      HYP_alpha3 = atof(argv[++i]);
     } else if (string(argv[i]) == "-APE_alpha") {
       APE_alpha = atof(argv[++i]);
-    } else if (string(argv[i]) == "-APE_enabled") {
+    } else if (string(argv[i]) == "-stout_alpha") {
+      stout_alpha = atof(argv[++i]);
+    } else if (string(argv[i]) == "-APE") {
       APE_enabled = stoi(argv[++i]);
+    } else if (string(argv[i]) == "-HYP") {
+      HYP_enabled = stoi(argv[++i]);
+    } else if (string(argv[i]) == "-stout") {
+      stout_enabled = stoi(argv[++i]);
     } else if (string(argv[i]) == "-APE_steps") {
       APE_steps = stoi(argv[++i]);
+    } else if (string(argv[i]) == "-HYP_steps") {
+      HYP_steps = stoi(argv[++i]);
+    } else if (string(argv[i]) == "-stout_steps") {
+      stout_steps = stoi(argv[++i]);
     } else if (string(argv[i]) == "-L_spat") {
       L_spat = stoi(string(argv[++i]));
     } else if (string(argv[i]) == "-L_time") {
@@ -72,9 +88,17 @@ int main(int argc, char *argv[]) {
 
   cout << "conf_format " << conf_format << endl;
   cout << "conf_path " << conf_path << endl;
+  cout << "HYP_alpha1 " << HYP_alpha1 << endl;
+  cout << "HYP_alpha2 " << HYP_alpha2 << endl;
+  cout << "HYP_alpha3 " << HYP_alpha3 << endl;
   cout << "APE_alpha " << APE_alpha << endl;
+  cout << "stout_alpha " << stout_alpha << endl;
   cout << "APE_enabled " << APE_enabled << endl;
+  cout << "HYP_enabled " << HYP_enabled << endl;
+  cout << "stout_enabled " << stout_enabled << endl;
   cout << "APE_steps " << APE_steps << endl;
+  cout << "HYP_steps " << HYP_steps << endl;
+  cout << "stout_steps " << stout_steps << endl;
   cout << "L_spat " << L_spat << endl;
   cout << "L_time " << L_time << endl;
   cout << "wilson_path " << wilson_path << endl;
@@ -112,39 +136,78 @@ int main(int argc, char *argv[]) {
                   << std::endl;
   }
 
-  std::map<std::tuple<int, int>, std::vector<MATRIX>> APE_2d =
-      smearing_APE_2d(conf.array, APE_alpha);
+  vector<FLOAT> wilson_loop;
 
-  std::map<std::tuple<int, int>, FLOAT> wilson_spat;
+  std::vector<std::vector<int>> directions;
+  directions.push_back({1, 0, 0});
+
+  std::vector<wilson_result> wilson_offaxis_result;
 
   if (wilson_enabled) {
-    wilson_spat =
-        wilson_spatial(conf.array, APE_2d, T_min, T_max, R_min, R_max);
+    wilson_offaxis_result =
+        wilson_offaxis(conf.array, directions, R_min, R_max, T_min, T_max);
 
-    for (auto it = wilson_spat.begin(); it != wilson_spat.end(); ++it) {
-      stream_wilson << "1"
-                    << "," << std::get<0>(it->first) << ","
-                    << std::get<1>(it->first) << "," << it->second << std::endl;
+    for (int i = 0; i < wilson_offaxis_result.size(); i++) {
+      stream_wilson << "0," << wilson_offaxis_result[i].time_size << ","
+                    << wilson_offaxis_result[i].space_size << ","
+                    << wilson_offaxis_result[i].wilson_loop << std::endl;
     }
+    wilson_offaxis_result.clear();
+  }
+
+  if (HYP_enabled == 1) {
+    start_time = clock();
+    for (int HYP_step = 0; HYP_step < HYP_steps; HYP_step++) {
+
+      vector<vector<MATRIX>> smearing_first;
+      vector<vector<MATRIX>> smearing_second;
+      smearing_first = smearing_first_full(conf.array, HYP_alpha3);
+      smearing_second =
+          smearing_second_full(conf.array, smearing_first, HYP_alpha2);
+      conf.array = smearing_HYP(conf.array, smearing_second, HYP_alpha1);
+      smearing_first.clear();
+      smearing_second.clear();
+
+      if (wilson_enabled) {
+        wilson_offaxis_result =
+            wilson_offaxis(conf.array, directions, R_min, R_max, T_min, T_max);
+
+        for (int i = 0; i < wilson_offaxis_result.size(); i++) {
+          stream_wilson << HYP_step + 1 << ","
+                        << wilson_offaxis_result[i].time_size << ","
+                        << wilson_offaxis_result[i].space_size << ","
+                        << wilson_offaxis_result[i].wilson_loop << std::endl;
+        }
+        wilson_offaxis_result.clear();
+      }
+    }
+
+    end_time = clock();
+    search_time = end_time - start_time;
+    cout << "i=" << HYP_steps
+         << " iterations of HYP time: " << search_time * 1. / CLOCKS_PER_SEC
+         << endl;
   }
 
   if (APE_enabled == 1) {
     start_time = clock();
-    for (int APE_step = 1; APE_step <= APE_steps; APE_step++) {
+    for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
-      smearing_APE_2d_continue(APE_2d, APE_alpha);
+      conf.array = smearing1_APE(conf.array, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
         if (wilson_enabled) {
-          wilson_spat =
-              wilson_spatial(conf.array, APE_2d, T_min, T_max, R_min, R_max);
+          wilson_offaxis_result = wilson_offaxis(conf.array, directions, R_min,
+                                                 R_max, T_min, T_max);
 
-          for (auto it = wilson_spat.begin(); it != wilson_spat.end(); ++it) {
-            stream_wilson << APE_step + 1 << "," << std::get<0>(it->first)
-                          << "," << std::get<1>(it->first) << "," << it->second
-                          << std::endl;
+          for (int i = 0; i < wilson_offaxis_result.size(); i++) {
+            stream_wilson << APE_step + HYP_steps + 1 << ","
+                          << wilson_offaxis_result[i].time_size << ","
+                          << wilson_offaxis_result[i].space_size << ","
+                          << wilson_offaxis_result[i].wilson_loop << std::endl;
           }
         }
+        wilson_offaxis_result.clear();
       }
     }
 
