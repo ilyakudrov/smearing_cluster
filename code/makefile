@@ -33,6 +33,12 @@ smearing_dependence_potential1: smearing_dependence_potential1.o
 smearing_dependence_potential1.o: smearing_dependence_potential1.cpp
 	$(GCC) -O4 smearing_dependence_potential1.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential1.o
 
+smearing_dependence_flux_wilson: smearing_dependence_flux_wilson.o
+	$(GCC) smearing_dependence_flux_wilson.o $(OBJ_FILES) -o exe/smearing_dependence_flux_wilson_$(MATRIX)
+	rm smearing_dependence_flux_wilson.o
+smearing_dependence_flux_wilson.o: smearing_dependence_flux_wilson.cpp
+	$(GCC) -O4 smearing_dependence_flux_wilson.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_flux_wilson.o
+
 smearing_dependence_potential_spatial: smearing_dependence_potential_spatial.o
 	$(GCC) smearing_dependence_potential_spatial.o $(OBJ_FILES) -o exe/smearing_dependence_potential_spatial_$(MATRIX)
 	rm smearing_dependence_potential_spatial.o
