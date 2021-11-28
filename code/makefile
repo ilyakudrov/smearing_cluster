@@ -5,7 +5,7 @@ OBJ_FILES=$(OBJ_PATH)/link.o $(OBJ_PATH)/result.o $(OBJ_PATH)/data.o $(OBJ_PATH)
 FLOAT=double
 FLAGS=-D DOUBLE
 GCC=/home/itep/kudrov/installed/gcc-9/bin/g++
-MATRIX=abelian
+MATRIX=su2
 
 all: smearing smearing_dependence smearing_dependence_potential smearing_dependence_potential_spatial
 

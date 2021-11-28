@@ -10,30 +10,21 @@ conf_type="qc2dstag"
 HYP_alpha1="1"
 HYP_alpha2="1"
 HYP_alpha3="0.5"
-APE_alpha="0.6"
+APE_alpha="0.55"
 stout_alpha="0.15"
 APE="1"
 HYP="1"
 stout="0"
-APE_steps="38"
+APE_steps="500"
 HYP_steps="1"
 stout_steps="0"
-wilson_enabled=1
 smearing="HYP${HYP_steps}_alpha=${HYP_alpha1}_${HYP_alpha2}_${HYP_alpha3}_APE_alpha=${APE_alpha}"
 
 calculate_absent="false"
 
-T_min=8
-T_max=20
-R_min=1
-R_max=20
-#T_min=4
-#T_max=5
-#R_min=1
-#R_max=2
-calculation_step_APE=4
+calculation_step_APE=5
 
-number_of_jobs=500
+number_of_jobs=400
 
 #for mu in "0.00" "0.05" "0.35" "0.45"
 for mu in "0.45"
@@ -42,8 +33,8 @@ do
 source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
 
 #chains=( "/" )
-#conf_start=( 31 )
-#conf_end=( 31 )
+#conf_start=( 201 )
+#conf_end=( 201 )
 
 #for monopole in "/" "monopoless"
 for monopole in "/"
@@ -103,7 +94,7 @@ fi
 
 #log_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/logs/smearing_test/${conf_type}/${conf_size}/mu${mu}/${chains[j]}"
 #log_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/logs/smearing_test/monopoless/${conf_type}/${conf_size}/mu${mu}/${chains[j]}"
-log_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/logs/smearing_test/potential/${monopole}/${conf_type}/${conf_size}/mu${mu}/${chains[${chain_current}]}"
+log_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/logs/smearing_test/flux_tube_wilson/${monopole}/${conf_type}/${conf_size}/mu${mu}/${chains[${chain_current}]}"
 mkdir -p ${log_path}
 
 a1=$((${conf1}/1000))
@@ -118,14 +109,14 @@ d2=$((${conf2}-$a2*1000-$b2*100-$c2*10))
 
 qsub -q long -v conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},smearing=${smearing},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
-stout_steps=${stout_steps},wilson_enabled=${wilson_enabled},L_spat=${L_spat},L_time=${L_time},T_min=${T_min},T_max=${T_max},R_min=${R_min},R_max=${R_max},calculation_step_APE=${calculation_step_APE},chain=${chains[${chain_current}]},conf1=${conf1},conf2=${conf2},\
-matrix_type=${matrix_type},calculate_absent=${calculate_absent},monopole=${monopole},conf_type=${conf_type},mu=${mu},conf_size=${conf_size} -o "${log_path}/$a1$b1$c1$d1.o" -e "${log_path}/$a2$b2$c2$d2.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_potential.sh
+stout_steps=${stout_steps},L_spat=${L_spat},L_time=${L_time},calculation_step_APE=${calculation_step_APE},chain=${chains[${chain_current}]},conf1=${conf1},conf2=${conf2},\
+matrix_type=${matrix_type},calculate_absent=${calculate_absent},monopole=${monopole},conf_type=${conf_type},mu=${mu},conf_size=${conf_size} -o "${log_path}/$a1$b1$c1$d1.o" -e "${log_path}/$a2$b2$c2$d2.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_flux_wilson.sh
 while [ $? -ne 0 ]
 do
 qsub -q long -v conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},smearing=${smearing},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
-stout_steps=${stout_steps},wilson_enabled=${wilson_enabled},L_spat=${L_spat},L_time=${L_time},T_min=${T_min},T_max=${T_max},R_min=${R_min},R_max=${R_max},calculation_step_APE=${calculation_step_APE},chain=${chains[${chain_current}]},conf1=${conf1},conf2=${conf2},\
-matrix_type=${matrix_type},calculate_absent=${calculate_absent},monopole=${monopole},conf_type=${conf_type},mu=${mu},conf_size=${conf_size} -o "${log_path}/$a1$b1$c1$d1.o" -e "${log_path}/$a2$b2$c2$d2.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_potential.sh
+stout_steps=${stout_steps},L_spat=${L_spat},L_time=${L_time},calculation_step_APE=${calculation_step_APE},chain=${chains[${chain_current}]},conf1=${conf1},conf2=${conf2},\
+matrix_type=${matrix_type},calculate_absent=${calculate_absent},monopole=${monopole},conf_type=${conf_type},mu=${mu},conf_size=${conf_size} -o "${log_path}/$a1$b1$c1$d1.o" -e "${log_path}/$a2$b2$c2$d2.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_flux_wilson.sh
 done
 
 if [[ $conf2 -ge ${conf_end[$chain_current]} ]] ; then

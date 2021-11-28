@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
       conf.array = smearing1_APE(conf.array, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
-        if (wilson_enabled) {
+        if (flux_enabled) {
           stream_flux << APE_step + HYP_steps + 1;
           for (int i = 0; i < 2; i++) {
             T = T_sizes[i];
