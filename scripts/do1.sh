@@ -1,21 +1,25 @@
 #!/bin/bash
 #mu="0.00"
-conf_size="40^4"
-conf_type="qc2dstag"
+conf_size="24^4"
+#conf_type="qc2dstag"
+conf_type="su2_suzuki"
+bites_skip=4
 
 HYP_alpha1="1"
 HYP_alpha2="1"
 HYP_alpha3="0.5"
-APE_alpha="0.75"
+APE_alpha="0.6"
 APE="1"
 HYP="1"
-APE_steps="0"
+APE_steps="32"
 HYP_steps="1"
 
 calculate_absent="false"
 
-for mu in "0.05" "0.35" "0.45"
-#for mu in "0.05"
+number_of_jobs=100
+
+#for mu in "0.05" "0.35" "0.45"
+for mu in "0.00"
 do
 
 source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
@@ -30,7 +34,7 @@ script_path="/home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do.sh"
 #conf_start=( 31 )
 #conf_end=( 400 )
 
-for monopole in "/" "monopoless"
+for monopole in "/"
 #for monopole in "monopoless" "/"
 #for monopole in "/"
 do
@@ -55,7 +59,25 @@ echo wrong monopole ${monopole}
 
 fi
 
-number_of_jobs=200
+if [[ $conf_type == "su2_suzuki" ]] ; then
+
+matrix_type="su2"
+conf_format="float_fortran"
+chains=( "/" )
+conf_start=( 1 )
+conf_end=( 100 )
+L_spat=24
+L_time=24
+
+if [[ ${monopole} == "monopoless" ]] ; then
+
+conf_format="double_fortran"
+bites_skip=8
+
+fi
+
+fi
+
 confs_total=0
 
 for i  in ${!chains[@]} ; do

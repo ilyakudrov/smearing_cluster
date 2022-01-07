@@ -1,8 +1,11 @@
 #!/bin/bash
 #mu="0.05"
-conf_size="40^4"
+#conf_size="40^4"
+conf_size="24^4"
 #conf_type="SU2_dinam"
-conf_type="qc2dstag"
+#conf_type="qc2dstag"
+conf_type="su2_suzuki"
+bites_skip=4
 
 #HYP_alpha1="0.75"
 #HYP_alpha2="0.6"
@@ -10,12 +13,12 @@ conf_type="qc2dstag"
 HYP_alpha1="1"
 HYP_alpha2="1"
 HYP_alpha3="0.5"
-APE_alpha="0.55"
+APE_alpha="0.6"
 stout_alpha="0.15"
 APE="1"
 HYP="1"
 stout="0"
-APE_steps="500"
+APE_steps="48"
 HYP_steps="1"
 stout_steps="0"
 smearing="HYP${HYP_steps}_alpha=${HYP_alpha1}_${HYP_alpha2}_${HYP_alpha3}_APE_alpha=${APE_alpha}"
@@ -24,20 +27,20 @@ calculate_absent="false"
 
 calculation_step_APE=5
 
-number_of_jobs=400
+number_of_jobs=100
 
 #for mu in "0.00" "0.05" "0.35" "0.45"
-for mu in "0.45"
+for mu in "0.00"
 do
 
 source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
 
-#chains=( "/" )
+#chains=( "s0" )
 #conf_start=( 201 )
 #conf_end=( 201 )
 
 #for monopole in "/" "monopoless"
-for monopole in "/"
+for monopole in "monopoless"
 do
 
 if [[ $monopole == "/" ]] ; then
@@ -60,6 +63,25 @@ conf_format="double_fortran"
 else
 
 echo wrong monopole ${monopole}
+
+fi
+
+if [[ $conf_type == "su2_suzuki" ]] ; then
+
+matrix_type="su2"
+conf_format="float_fortran"
+chains=( "/" )
+conf_start=( 1 )
+conf_end=( 100 )
+L_spat=24
+L_time=24
+
+if [[ ${monopole} == "monopoless" ]] ; then
+
+conf_format="double_fortran"
+bites_skip=8
+
+fi
 
 fi
 
@@ -107,13 +129,13 @@ b2=$(((${conf2}-$a2*1000)/100))
 c2=$(((${conf2}-$a2*1000-$b2*100)/10))
 d2=$((${conf2}-$a2*1000-$b2*100-$c2*10))
 
-qsub -q long -v conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},smearing=${smearing},\
+qsub -q long -v conf_format=${conf_format},bites_skip=${bites_skip},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},smearing=${smearing},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
 stout_steps=${stout_steps},L_spat=${L_spat},L_time=${L_time},calculation_step_APE=${calculation_step_APE},chain=${chains[${chain_current}]},conf1=${conf1},conf2=${conf2},\
 matrix_type=${matrix_type},calculate_absent=${calculate_absent},monopole=${monopole},conf_type=${conf_type},mu=${mu},conf_size=${conf_size} -o "${log_path}/$a1$b1$c1$d1.o" -e "${log_path}/$a2$b2$c2$d2.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_flux_wilson.sh
 while [ $? -ne 0 ]
 do
-qsub -q long -v conf_format=${conf_format},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},smearing=${smearing},\
+qsub -q long -v conf_format=${conf_format},bites_skip=${bites_skip},HYP_alpha1=${HYP_alpha1},HYP_alpha2=${HYP_alpha2},HYP_alpha3=${HYP_alpha3},smearing=${smearing},\
 APE_alpha=${APE_alpha},stout_alpha=${stout_alpha},APE=${APE},HYP=${HYP},stout=${stout},APE_steps=${APE_steps},HYP_steps=${HYP_steps},\
 stout_steps=${stout_steps},L_spat=${L_spat},L_time=${L_time},calculation_step_APE=${calculation_step_APE},chain=${chains[${chain_current}]},conf1=${conf1},conf2=${conf2},\
 matrix_type=${matrix_type},calculate_absent=${calculate_absent},monopole=${monopole},conf_type=${conf_type},mu=${mu},conf_size=${conf_size} -o "${log_path}/$a1$b1$c1$d1.o" -e "${log_path}/$a2$b2$c2$d2.e" /home/clusters/rrcmpi/kudrov/smearing_cluster/scripts/do_dep_flux_wilson.sh

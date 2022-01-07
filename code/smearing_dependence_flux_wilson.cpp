@@ -32,9 +32,12 @@ int main(int argc, char *argv[]) {
   int L_spat, L_time;
   int flux_enabled;
   int calculation_step_APE;
+  int bites_skip = 4;
   for (int i = 1; i < argc; i++) {
     if (string(argv[i]) == "-conf_format") {
       conf_format = argv[++i];
+    } else if (string(argv[i]) == "-bites_skip") {
+      bites_skip = stoi(string(argv[++i]));
     } else if (string(argv[i]) == "-conf_path") {
       conf_path = argv[++i];
     } else if (string(argv[i]) == "-HYP_alpha1") {
@@ -78,6 +81,7 @@ int main(int argc, char *argv[]) {
   flux_enabled = 1;
 
   cout << "conf_format " << conf_format << endl;
+  cout << "bites_skip " << bites_skip << endl;
   cout << "conf_path " << conf_path << endl;
   cout << "HYP_alpha1 " << HYP_alpha1 << endl;
   cout << "HYP_alpha2 " << HYP_alpha2 << endl;
@@ -105,9 +109,9 @@ int main(int argc, char *argv[]) {
   } else if (string(conf_format) == "double") {
     conf.read_double(conf_path);
   } else if (string(conf_format) == "double_fortran") {
-    conf.read_double_fortran(conf_path);
+    conf.read_double_fortran(conf_path, bites_skip);
   } else if (string(conf_format) == "float_fortran") {
-    conf.read_float_fortran(conf_path);
+    conf.read_float_fortran(conf_path, bites_skip);
   } else if (string(conf_format) == "double_qc2dstag") {
     conf.read_double_qc2dstag(conf_path);
   }
@@ -120,8 +124,10 @@ int main(int argc, char *argv[]) {
     stream_flux.open(flux_path);
   }
 
-  vector<int> T_sizes = {8, 16};
-  vector<int> R_sizes = {8, 16};
+  int T_num = 4;
+
+  vector<int> T_sizes = {6, 8, 10, 12};
+  vector<int> R_sizes = {6, 12};
 
   double c = plaket_time(conf.array);
   double a, b;
@@ -136,10 +142,9 @@ int main(int argc, char *argv[]) {
   if (flux_enabled) {
     vec_plaket_time = calculate_plaket_time_tr(conf.array);
 
-    stream_flux << "smearing_step,T,R,correlator,wilson,plaket" << endl;
+    stream_flux << "smearing_step,T,R,d,correlator,wilson,plaket" << endl;
 
-    stream_flux << 0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < T_num; i++) {
       T = T_sizes[i];
       for (int j = 0; j < 2; j++) {
         R = R_sizes[j];
@@ -148,12 +153,8 @@ int main(int argc, char *argv[]) {
         vec_wilson.average(aver);
         b = aver[0];
         flux_tmp = wilson_plaket_correlator_electric(
-            vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
-        stream_flux << "0," << T << "," << R << "," << flux_tmp[0] << "," << b
-                    << "," << c << endl;
-        flux_tmp = wilson_plaket_correlator_electric(
             vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
-        stream_flux << "0," << T << "," << R << "," << flux_tmp[d] << "," << b
+        stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[0] << "," << b
                     << "," << c << endl;
       }
     }
@@ -173,8 +174,7 @@ int main(int argc, char *argv[]) {
       smearing_second.clear();
 
       if (flux_enabled) {
-        stream_flux << HYP_step + 1;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < T_num; i++) {
           T = T_sizes[i];
           for (int j = 0; j < 2; j++) {
             R = R_sizes[j];
@@ -184,11 +184,11 @@ int main(int argc, char *argv[]) {
             b = aver[0];
             flux_tmp = wilson_plaket_correlator_electric(
                 vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
-            stream_flux << "0," << T << "," << R << "," << flux_tmp[0] << ","
+            stream_flux << HYP_step + 1<<"," << T << "," << R << "," << 0 << "," << flux_tmp[0] << ","
                         << b << "," << c << endl;
             flux_tmp = wilson_plaket_correlator_electric(
                 vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
-            stream_flux << "0," << T << "," << R << "," << flux_tmp[d] << ","
+            stream_flux << HYP_step + 1<<"," << T << "," << R << "," << d << "," << flux_tmp[d] << ","
                         << b << "," << c << endl;
           }
         }
@@ -210,8 +210,7 @@ int main(int argc, char *argv[]) {
 
       if (APE_step % calculation_step_APE == 0) {
         if (flux_enabled) {
-          stream_flux << APE_step + HYP_steps + 1;
-          for (int i = 0; i < 2; i++) {
+          for (int i = 0; i < T_num; i++) {
             T = T_sizes[i];
             for (int j = 0; j < 2; j++) {
               R = R_sizes[j];
@@ -221,11 +220,11 @@ int main(int argc, char *argv[]) {
               b = aver[0];
               flux_tmp = wilson_plaket_correlator_electric(
                   vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
-              stream_flux << "0," << T << "," << R << "," << flux_tmp[0] << ","
+              stream_flux << APE_step + HYP_steps + 1<<"," << T << "," << R << "," << 0 << "," << flux_tmp[0] << ","
                           << b << "," << c << endl;
               flux_tmp = wilson_plaket_correlator_electric(
                   vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
-              stream_flux << "0," << T << "," << R << "," << flux_tmp[d] << ","
+              stream_flux << APE_step + HYP_steps + 1<<"," << T << "," << R << "," << d << "," << flux_tmp[d] << ","
                           << b << "," << c << endl;
             }
           }
