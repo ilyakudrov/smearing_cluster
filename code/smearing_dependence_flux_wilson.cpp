@@ -22,7 +22,9 @@ int main(int argc, char *argv[]) {
   unsigned int search_time;
 
   string conf_format;
+  string nonabelian_format;
   string conf_path;
+  string nonabelian_path;
   string flux_path;
   double HYP_alpha1, HYP_alpha2, HYP_alpha3;
   double APE_alpha;
@@ -33,13 +35,20 @@ int main(int argc, char *argv[]) {
   int flux_enabled;
   int calculation_step_APE;
   int bites_skip = 4;
+  int bites_skip_nonabelian = 4;
   for (int i = 1; i < argc; i++) {
     if (string(argv[i]) == "-conf_format") {
       conf_format = argv[++i];
     } else if (string(argv[i]) == "-bites_skip") {
       bites_skip = stoi(string(argv[++i]));
+    } else if (string(argv[i]) == "-bites_skip_nonabelian") {
+      bites_skip_nonabelian = stoi(string(argv[++i]));
     } else if (string(argv[i]) == "-conf_path") {
       conf_path = argv[++i];
+    } else if (string(argv[i]) == "-nonabelian_format") {
+      nonabelian_format = argv[++i];
+    } else if (string(argv[i]) == "-nonabelian_path") {
+      nonabelian_path = argv[++i];
     } else if (string(argv[i]) == "-HYP_alpha1") {
       HYP_alpha1 = atof(argv[++i]);
     } else if (string(argv[i]) == "-HYP_alpha2") {
@@ -101,8 +110,27 @@ int main(int argc, char *argv[]) {
   std::cout << "calculation_step_APE " << calculation_step_APE << std::endl;
   cout << endl;
 
+  data<MATRIX_NONABELIAN> conf_nonabelian;
+
+  if (string(nonabelian_format) == "float") {
+    conf_nonabelian.read_float(nonabelian_path);
+  } else if (string(nonabelian_format) == "double") {
+    conf_nonabelian.read_double(nonabelian_path);
+  } else if (string(nonabelian_format) == "double_fortran") {
+    conf_nonabelian.read_double_fortran(nonabelian_path, bites_skip_nonabelian);
+  } else if (string(nonabelian_format) == "float_fortran") {
+    conf_nonabelian.read_float_fortran(nonabelian_path, bites_skip_nonabelian);
+  } else if (string(nonabelian_format) == "double_qc2dstag") {
+    conf_nonabelian.read_double_qc2dstag(nonabelian_path);
+  }
+
+  double c = plaket_time(conf_nonabelian.array);
+  vector<FLOAT> vec_plaket_time;
+  vec_plaket_time = calculate_plaket_time_tr(conf_nonabelian.array);
+
+  conf_nonabelian.array.clean();
+
   data<MATRIX> conf;
-  link1 link(x_size, y_size, z_size, t_size);
 
   if (string(conf_format) == "float") {
     conf.read_float(conf_path);
@@ -129,7 +157,6 @@ int main(int argc, char *argv[]) {
   vector<int> T_sizes = {6, 8, 10, 12};
   vector<int> R_sizes = {6, 12};
 
-  double c = plaket_time(conf.array);
   double a, b;
   double aver[2];
   result vec_wilson;
@@ -140,7 +167,6 @@ int main(int argc, char *argv[]) {
   int T, R;
 
   if (flux_enabled) {
-    vec_plaket_time = calculate_plaket_time_tr(conf.array);
 
     stream_flux << "smearing_step,T,R,d,correlator,wilson,plaket" << endl;
 
@@ -154,8 +180,8 @@ int main(int argc, char *argv[]) {
         b = aver[0];
         flux_tmp = wilson_plaket_correlator_electric(
             vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
-        stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[0] << "," << b
-                    << "," << c << endl;
+        stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[0]
+                    << "," << b << "," << c << endl;
       }
     }
   }
@@ -184,12 +210,12 @@ int main(int argc, char *argv[]) {
             b = aver[0];
             flux_tmp = wilson_plaket_correlator_electric(
                 vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
-            stream_flux << HYP_step + 1<<"," << T << "," << R << "," << 0 << "," << flux_tmp[0] << ","
-                        << b << "," << c << endl;
+            stream_flux << HYP_step + 1 << "," << T << "," << R << "," << 0
+                        << "," << flux_tmp[0] << "," << b << "," << c << endl;
             flux_tmp = wilson_plaket_correlator_electric(
                 vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
-            stream_flux << HYP_step + 1<<"," << T << "," << R << "," << d << "," << flux_tmp[d] << ","
-                        << b << "," << c << endl;
+            stream_flux << HYP_step + 1 << "," << T << "," << R << "," << d
+                        << "," << flux_tmp[d] << "," << b << "," << c << endl;
           }
         }
       }
@@ -220,12 +246,14 @@ int main(int argc, char *argv[]) {
               b = aver[0];
               flux_tmp = wilson_plaket_correlator_electric(
                   vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
-              stream_flux << APE_step + HYP_steps + 1<<"," << T << "," << R << "," << 0 << "," << flux_tmp[0] << ","
-                          << b << "," << c << endl;
+              stream_flux << APE_step + HYP_steps + 1 << "," << T << "," << R
+                          << "," << 0 << "," << flux_tmp[0] << "," << b << ","
+                          << c << endl;
               flux_tmp = wilson_plaket_correlator_electric(
                   vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
-              stream_flux << APE_step + HYP_steps + 1<<"," << T << "," << R << "," << d << "," << flux_tmp[d] << ","
-                          << b << "," << c << endl;
+              stream_flux << APE_step + HYP_steps + 1 << "," << T << "," << R
+                          << "," << d << "," << flux_tmp[d] << "," << b << ","
+                          << c << endl;
             }
           }
         }
