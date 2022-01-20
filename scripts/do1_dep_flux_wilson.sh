@@ -6,6 +6,7 @@ conf_size="24^4"
 #conf_type="qc2dstag"
 conf_type="su2_suzuki"
 bites_skip=4
+bites_skip_nonabelian=4
 
 #HYP_alpha1="0.75"
 #HYP_alpha2="0.6"
@@ -34,6 +35,7 @@ for mu in "0.00"
 do
 
 source "/lustre/rrcmpi/kudrov/conf/${conf_type}/${conf_size}/mu${mu}/parameters"
+source "/home/clusters/rrcmpi/kudrov/smearing_cluster/smearing_parameters/${conf_type}/${conf_size}/mu${mu}"
 
 #chains=( "s0" )
 #conf_start=( 201 )
@@ -84,11 +86,6 @@ bites_skip=8
 fi
 
 fi
-
-#conf_type="SU2_dinam"
-#conf_format="float_fortran"
-#matrix_type="su2"
-
 
 confs_total=0
 

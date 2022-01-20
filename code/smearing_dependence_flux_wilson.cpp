@@ -91,7 +91,10 @@ int main(int argc, char *argv[]) {
 
   cout << "conf_format " << conf_format << endl;
   cout << "bites_skip " << bites_skip << endl;
+  cout << "bites_skip_nonabelian " << bites_skip_nonabelian << endl;
   cout << "conf_path " << conf_path << endl;
+  cout << "nonabelian_format " << nonabelian_format << endl;
+  cout << "nonabelian_path " << nonabelian_path << endl;
   cout << "HYP_alpha1 " << HYP_alpha1 << endl;
   cout << "HYP_alpha2 " << HYP_alpha2 << endl;
   cout << "HYP_alpha3 " << HYP_alpha3 << endl;
@@ -128,7 +131,7 @@ int main(int argc, char *argv[]) {
   vector<FLOAT> vec_plaket_time;
   vec_plaket_time = calculate_plaket_time_tr(conf_nonabelian.array);
 
-  conf_nonabelian.array.clean();
+  conf_nonabelian.array.clear();
 
   data<MATRIX> conf;
 
@@ -160,7 +163,6 @@ int main(int argc, char *argv[]) {
   double a, b;
   double aver[2];
   result vec_wilson;
-  vector<FLOAT> vec_plaket_time;
   std::map<int, FLOAT> flux_tmp;
   int d;
   int x_trans = 0;

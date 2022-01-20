@@ -25,13 +25,15 @@ int main(int argc, char* argv[]) {
         string smeared_path;
 	double HYP_alpha1, HYP_alpha2, HYP_alpha3;
 	double APE_alpha;
-	double stout_alpha;
-	int APE_enabled, HYP_enabled, stout_enabled;
-	int HYP_steps, APE_steps, stout_steps;
+	double stout_alpha = 0;
+	int APE_enabled, HYP_enabled, stout_enabled = 0;
+	int HYP_steps, APE_steps, stout_steps = 0;
 	int L_spat, L_time;
+	int bites_skip = 4;
         for (int i = 1; i < argc; i++) {
                 if (string(argv[i]) == "-conf_format") { conf_format = argv[++i]; }
                 else if (string(argv[i]) == "-conf_path") { conf_path = argv[++i]; }
+		else if (string(argv[i]) == "-bites_skip") {bites_skip = stoi(string(argv[++i])); }
                 else if (string(argv[i]) == "-smeared_path") { smeared_path = argv[++i]; }
 		else if (string(argv[i]) == "-HYP_alpha1") { HYP_alpha1 = atof(argv[++i]); }
 		else if (string(argv[i]) == "-HYP_alpha2") { HYP_alpha2 = atof(argv[++i]); }
@@ -55,6 +57,7 @@ int main(int argc, char* argv[]) {
 
 	cout<<"conf_format "<<conf_format<<endl;
 	cout<<"conf_path "<<conf_path<<endl;
+	cout << "bites_skip " << bites_skip << endl;
 	cout<<"smeared_path "<<smeared_path<<endl;
 	cout<<"HYP_alpha1 "<<HYP_alpha1<<endl;
 	cout<<"HYP_alpha2 "<<HYP_alpha2<<endl;
@@ -79,10 +82,10 @@ int main(int argc, char* argv[]) {
                 conf.read_double(conf_path);
         }
         else if (string(conf_format) == "double_fortran"){
-                conf.read_double_fortran(conf_path);
+                conf.read_double_fortran(conf_path, bites_skip);
         }
         else if (string(conf_format) == "float_fortran"){
-                conf.read_float_fortran(conf_path);
+                conf.read_float_fortran(conf_path, bites_skip);
         }
 	else if (string(conf_format) == "double_qc2dstag"){
                 conf.read_double_qc2dstag(conf_path);
