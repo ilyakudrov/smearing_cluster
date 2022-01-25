@@ -5,10 +5,12 @@ do
 
 conf_path="${conf_path_start}`printf %0${padding}d $i`${conf_path_end}"
 
+echo $conf_path
+
 if [ -f ${conf_path} ] && [ -s ${conf_path} ]; then
 
 mkdir -p ${output_path}
-smeared_path="${output_path}/conf_$a$b$c$d"
+smeared_path="${output_path}/conf_`printf %04d $i`"
 
 parameters="-conf_format $conf_format -conf_path $conf_path -bites_skip ${bites_skip} -smeared_path $smeared_path\
  -HYP_alpha1 $HYP_alpha1 -HYP_alpha2 $HYP_alpha2 -HYP_alpha3 $HYP_alpha3 -APE_alpha $APE_alpha -APE $APE -HYP $HYP\

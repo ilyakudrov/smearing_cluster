@@ -1,13 +1,13 @@
 SRC_PATH=/home/clusters/rrcmpi/kudrov/general_code/lib/cpu/src
 INCLUDE_PATH=/home/clusters/rrcmpi/kudrov/general_code/lib/cpu/include
 OBJ_PATH=/home/clusters/rrcmpi/kudrov/general_code/lib/cpu/obj
-OBJ_FILES=$(OBJ_PATH)/link.o $(OBJ_PATH)/result.o $(OBJ_PATH)/data.o $(OBJ_PATH)/matrix.o $(OBJ_PATH)/basic_observables.o $(OBJ_PATH)/flux_tube.o $(OBJ_PATH)/smearing.o
+OBJ_FILES=$(OBJ_PATH)/link.o $(OBJ_PATH)/data.o $(OBJ_PATH)/matrix.o $(OBJ_PATH)/basic_observables.o $(OBJ_PATH)/flux_tube.o $(OBJ_PATH)/smearing.o
 C_PATH=/home/clusters/rrcmpi/kudrov/general_code/lib/cpu/src/c-lime
 C_FILES=$(C_PATH)/lime_fseeko.c  $(C_PATH)/lime_header.c  $(C_PATH)/lime_reader.c  $(C_PATH)/lime_utils.c  $(C_PATH)/lime_writer.c
 FLOAT=double
 FLAGS=-D DOUBLE
 GCC=/home/itep/kudrov/installed/gcc-9/bin/g++
-MATRIX=abelian
+MATRIX=su2
 MATRIX_NONABELIAN=su2
 
 all: smearing smearing_dependence smearing_dependence_potential smearing_dependence_potential_spatial
