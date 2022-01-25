@@ -21,10 +21,12 @@ int main(int argc, char *argv[]) {
   unsigned int end_time;
   unsigned int search_time;
 
-  string conf_format;
-  string nonabelian_format;
-  string conf_path;
-  string nonabelian_path;
+  std::string conf_format_plaket;
+  std::string conf_format_wilson;
+  std::string conf_path_plaket;
+  std::string conf_path_wilson;
+  std::string output_path_electric;
+  std::string output_path_magnetic;
   string flux_path;
   double HYP_alpha1, HYP_alpha2, HYP_alpha3;
   double APE_alpha;
@@ -34,21 +36,21 @@ int main(int argc, char *argv[]) {
   int L_spat, L_time;
   int flux_enabled;
   int calculation_step_APE;
-  int bites_skip = 4;
-  int bites_skip_nonabelian = 4;
+  int bites_skip_plaket = 0;
+  int bites_skip_wilson = 0;
   for (int i = 1; i < argc; i++) {
-    if (string(argv[i]) == "-conf_format") {
-      conf_format = argv[++i];
-    } else if (string(argv[i]) == "-bites_skip") {
-      bites_skip = stoi(string(argv[++i]));
-    } else if (string(argv[i]) == "-bites_skip_nonabelian") {
-      bites_skip_nonabelian = stoi(string(argv[++i]));
-    } else if (string(argv[i]) == "-conf_path") {
-      conf_path = argv[++i];
-    } else if (string(argv[i]) == "-nonabelian_format") {
-      nonabelian_format = argv[++i];
-    } else if (string(argv[i]) == "-nonabelian_path") {
-      nonabelian_path = argv[++i];
+    if (string(argv[i]) == "-conf_format_plaket") {
+      conf_format_plaket = argv[++i];
+    } else if (string(argv[i]) == "-bites_skip_plaket") {
+      bites_skip_plaket = stoi(string(argv[++i]));
+    } else if (string(argv[i]) == "-bites_skip_wilson") {
+      bites_skip_wilson = stoi(string(argv[++i]));
+    } else if (string(argv[i]) == "-conf_path_plaket") {
+      conf_path_plaket = argv[++i];
+    } else if (string(argv[i]) == "-conf_format_wilson") {
+      conf_format_wilson = argv[++i];
+    } else if (string(argv[i]) == "-conf_path_wilson") {
+      conf_path_wilson = argv[++i];
     } else if (string(argv[i]) == "-HYP_alpha1") {
       HYP_alpha1 = atof(argv[++i]);
     } else if (string(argv[i]) == "-HYP_alpha2") {
@@ -89,12 +91,12 @@ int main(int argc, char *argv[]) {
 
   flux_enabled = 1;
 
-  cout << "conf_format " << conf_format << endl;
-  cout << "bites_skip " << bites_skip << endl;
-  cout << "bites_skip_nonabelian " << bites_skip_nonabelian << endl;
-  cout << "conf_path " << conf_path << endl;
-  cout << "nonabelian_format " << nonabelian_format << endl;
-  cout << "nonabelian_path " << nonabelian_path << endl;
+  std::cout << "conf_format_plaket " << conf_format_plaket << std::endl;
+  cout << "bites_skip_plaket " << bites_skip_plaket << endl;
+  std::cout << "conf_format_wilson " << conf_format_wilson << std::endl;
+  cout << "bites_skip_wilson " << bites_skip_wilson << endl;
+  std::cout << "conf_path_plaket " << conf_path_plaket << std::endl;
+  std::cout << "conf_path_wilson " << conf_path_wilson << std::endl;
   cout << "HYP_alpha1 " << HYP_alpha1 << endl;
   cout << "HYP_alpha2 " << HYP_alpha2 << endl;
   cout << "HYP_alpha3 " << HYP_alpha3 << endl;
@@ -113,41 +115,35 @@ int main(int argc, char *argv[]) {
   std::cout << "calculation_step_APE " << calculation_step_APE << std::endl;
   cout << endl;
 
-  data<MATRIX_NONABELIAN> conf_nonabelian;
+  data<MATRIX_PLAKET> conf_plaket;
+  data<MATRIX_WILSON> conf_wilson;
 
-  if (string(nonabelian_format) == "float") {
-    conf_nonabelian.read_float(nonabelian_path);
-  } else if (string(nonabelian_format) == "double") {
-    conf_nonabelian.read_double(nonabelian_path);
-  } else if (string(nonabelian_format) == "double_fortran") {
-    conf_nonabelian.read_double_fortran(nonabelian_path, bites_skip_nonabelian);
-  } else if (string(nonabelian_format) == "float_fortran") {
-    conf_nonabelian.read_float_fortran(nonabelian_path, bites_skip_nonabelian);
-  } else if (string(nonabelian_format) == "double_qc2dstag") {
-    conf_nonabelian.read_double_qc2dstag(nonabelian_path);
+  if (std::string(conf_format_plaket) == "float") {
+    conf_plaket.read_float(conf_path_plaket, bites_skip_plaket);
+  } else if (std::string(conf_format_plaket) == "double") {
+    conf_plaket.read_double(conf_path_plaket, bites_skip_plaket);
+  } else if (std::string(conf_format_plaket) == "double_qc2dstag") {
+    conf_plaket.read_double_qc2dstag(conf_path_plaket);
   }
 
-  double c = plaket_time(conf_nonabelian.array);
-  vector<FLOAT> vec_plaket_time;
-  vec_plaket_time = calculate_plaket_time_tr(conf_nonabelian.array);
-
-  conf_nonabelian.array.clear();
-
-  data<MATRIX> conf;
-
-  if (string(conf_format) == "float") {
-    conf.read_float(conf_path);
-  } else if (string(conf_format) == "double") {
-    conf.read_double(conf_path);
-  } else if (string(conf_format) == "double_fortran") {
-    conf.read_double_fortran(conf_path, bites_skip);
-  } else if (string(conf_format) == "float_fortran") {
-    conf.read_float_fortran(conf_path, bites_skip);
-  } else if (string(conf_format) == "double_qc2dstag") {
-    conf.read_double_qc2dstag(conf_path);
+  if (std::string(conf_format_wilson) == "float") {
+    conf_wilson.read_float(conf_path_wilson, bites_skip_wilson);
+  } else if (std::string(conf_format_wilson) == "double") {
+    conf_wilson.read_double(conf_path_wilson, bites_skip_wilson);
+  } else if (std::string(conf_format_wilson) == "double_qc2dstag") {
+    conf_wilson.read_double_qc2dstag(conf_path_wilson);
   }
 
-  cout << "average plaket unsmeared " << plaket(conf.array) << endl;
+  vector<double> plaket_time_trace =
+      calculate_plaket_time_tr(conf_plaket.array);
+
+  double plaket_time_average =
+      accumulate(plaket_time_trace.cbegin(), plaket_time_trace.cend(), 0.0) /
+      plaket_time_trace.size();
+
+  conf_plaket.array.clear();
+
+  cout << "average plaket unsmeared " << plaket_time_trace << endl;
 
   ofstream stream_flux;
   // open file
@@ -155,15 +151,14 @@ int main(int argc, char *argv[]) {
     stream_flux.open(flux_path);
   }
 
-  int T_num = 4;
+  int T_num = 5;
+  int R_num = 3;
 
-  vector<int> T_sizes = {6, 8, 10, 12};
-  vector<int> R_sizes = {6, 12};
+  vector<int> T_sizes = {4, 6, 8, 10, 12};
+  vector<int> R_sizes = {6, 8, 12};
 
-  double a, b;
-  double aver[2];
-  result vec_wilson;
-  std::map<int, FLOAT> flux_tmp;
+  vector<double> wilson_loop_trace;
+  std::map<int, double> flux_tmp;
   int d;
   int x_trans = 0;
   int T, R;
@@ -174,16 +169,23 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < T_num; i++) {
       T = T_sizes[i];
-      for (int j = 0; j < 2; j++) {
+      for (int j = 0; j < R_num; j++) {
         R = R_sizes[j];
         d = R / 2;
-        vec_wilson.array = calculate_wilson_loop_tr(conf.array, R, T);
-        vec_wilson.average(aver);
-        b = aver[0];
+        wilson_loop_trace = calculate_wilson_loop_tr(conf_wilson.array, R, T);
+        wilson_loop_average = accumulate(wilson_loop_trace.cbegin(),
+                                         wilson_loop_trace.cend(), 0.0) /
+                              wilson_loop_trace.size();
         flux_tmp = wilson_plaket_correlator_electric(
-            vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
+            wilson_loop_trace, plaket_time_trace, R, T, x_trans, 0, 0);
         stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[0]
-                    << "," << b << "," << c << endl;
+                    << "," << wilson_loop_average << "," << plaket_time_average
+                    << endl;
+        flux_tmp = wilson_plaket_correlator_electric(
+            wilson_loop_trace, plaket_time_trace, R, T, x_trans, d, d);
+        stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[d]
+                    << "," << wilson_loop_average << "," << plaket_time_average
+                    << endl;
       }
     }
   }
@@ -192,32 +194,37 @@ int main(int argc, char *argv[]) {
     start_time = clock();
     for (int HYP_step = 0; HYP_step < HYP_steps; HYP_step++) {
 
-      vector<vector<MATRIX>> smearing_first;
-      vector<vector<MATRIX>> smearing_second;
-      smearing_first = smearing_first_full(conf.array, HYP_alpha3);
+      vector<vector<MATRIX_WILSON>> smearing_first;
+      vector<vector<MATRIX_WILSON>> smearing_second;
+      smearing_first = smearing_first_full(conf_wilson.array, HYP_alpha3);
       smearing_second =
-          smearing_second_full(conf.array, smearing_first, HYP_alpha2);
-      conf.array = smearing_HYP(conf.array, smearing_second, HYP_alpha1);
+          smearing_second_full(conf_wilson.array, smearing_first, HYP_alpha2);
+      conf_wilson.array =
+          smearing_HYP(conf_wilson.array, smearing_second, HYP_alpha1);
       smearing_first.clear();
       smearing_second.clear();
 
       if (flux_enabled) {
         for (int i = 0; i < T_num; i++) {
           T = T_sizes[i];
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < R_num; j++) {
             R = R_sizes[j];
             d = R / 2;
-            vec_wilson.array = calculate_wilson_loop_tr(conf.array, R, T);
-            vec_wilson.average(aver);
-            b = aver[0];
+            wilson_loop_trace =
+                calculate_wilson_loop_tr(conf_wilson.array, R, T);
+            wilson_loop_average = accumulate(wilson_loop_trace.cbegin(),
+                                             wilson_loop_trace.cend(), 0.0) /
+                                  wilson_loop_trace.size();
             flux_tmp = wilson_plaket_correlator_electric(
-                vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
+                wilson_loop_trace, plaket_time_trace, R, T, x_trans, 0, 0);
             stream_flux << HYP_step + 1 << "," << T << "," << R << "," << 0
-                        << "," << flux_tmp[0] << "," << b << "," << c << endl;
+                        << "," << flux_tmp[0] << "," << wilson_loop_average
+                        << "," << plaket_time_average << endl;
             flux_tmp = wilson_plaket_correlator_electric(
-                vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
+                wilson_loop_trace, plaket_time_trace, R, T, x_trans, d, d);
             stream_flux << HYP_step + 1 << "," << T << "," << R << "," << d
-                        << "," << flux_tmp[d] << "," << b << "," << c << endl;
+                        << "," << flux_tmp[d] << "," << wilson_loop_average
+                        << "," << plaket_time_average << endl;
           }
         }
       }
@@ -240,22 +247,26 @@ int main(int argc, char *argv[]) {
         if (flux_enabled) {
           for (int i = 0; i < T_num; i++) {
             T = T_sizes[i];
-            for (int j = 0; j < 2; j++) {
+            for (int j = 0; j < R_num; j++) {
               R = R_sizes[j];
               d = R / 2;
-              vec_wilson.array = calculate_wilson_loop_tr(conf.array, R, T);
-              vec_wilson.average(aver);
-              b = aver[0];
+              wilson_loop_trace =
+                  calculate_wilson_loop_tr(conf_wilson.array, R, T);
+              wilson_loop_average = accumulate(wilson_loop_trace.cbegin(),
+                                               wilson_loop_trace.cend(), 0.0) /
+                                    wilson_loop_trace.size();
               flux_tmp = wilson_plaket_correlator_electric(
-                  vec_wilson.array, vec_plaket_time, R, T, x_trans, 0, 0);
+                  wilson_loop_trace, plaket_time_trace, R, T, x_trans, 0, 0);
               stream_flux << APE_step + HYP_steps + 1 << "," << T << "," << R
-                          << "," << 0 << "," << flux_tmp[0] << "," << b << ","
-                          << c << endl;
+                          << "," << 0 << "," << flux_tmp[0] << ","
+                          << wilson_loop_average << "," << plaket_time_average
+                          << endl;
               flux_tmp = wilson_plaket_correlator_electric(
-                  vec_wilson.array, vec_plaket_time, R, T, x_trans, d, d);
+                  wilson_loop_trace, plaket_time_trace, R, T, x_trans, d, d);
               stream_flux << APE_step + HYP_steps + 1 << "," << T << "," << R
-                          << "," << d << "," << flux_tmp[d] << "," << b << ","
-                          << c << endl;
+                          << "," << d << "," << flux_tmp[d] << ","
+                          << wilson_loop_average << "," << plaket_time_average
+                          << endl;
             }
           }
         }
