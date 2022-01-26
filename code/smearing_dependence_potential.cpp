@@ -33,9 +33,12 @@ int main(int argc, char *argv[]) {
   int wilson_enabled;
   int calculation_step_APE;
   int T_min, T_max, R_min, R_max;
+  int bites_skip = 0;
   for (int i = 1; i < argc; i++) {
     if (string(argv[i]) == "-conf_format") {
       conf_format = argv[++i];
+    } else if (string(argv[i]) == "-bites_skip") {
+      bites_skip = stoi(string(argv[++i]));
     } else if (string(argv[i]) == "-conf_path") {
       conf_path = argv[++i];
     } else if (string(argv[i]) == "-HYP_alpha1") {
@@ -88,6 +91,7 @@ int main(int argc, char *argv[]) {
 
   cout << "conf_format " << conf_format << endl;
   cout << "conf_path " << conf_path << endl;
+  cout << "bites_skip " << bites_skip << endl;
   cout << "HYP_alpha1 " << HYP_alpha1 << endl;
   cout << "HYP_alpha2 " << HYP_alpha2 << endl;
   cout << "HYP_alpha3 " << HYP_alpha3 << endl;
@@ -111,17 +115,12 @@ int main(int argc, char *argv[]) {
   cout << endl;
 
   data<MATRIX> conf;
-  link1 link(x_size, y_size, z_size, t_size);
 
-  if (string(conf_format) == "float") {
-    conf.read_float(conf_path);
-  } else if (string(conf_format) == "double") {
-    conf.read_double(conf_path);
-  } else if (string(conf_format) == "double_fortran") {
-    conf.read_double_fortran(conf_path);
-  } else if (string(conf_format) == "float_fortran") {
-    conf.read_float_fortran(conf_path);
-  } else if (string(conf_format) == "double_qc2dstag") {
+  if (std::string(conf_format) == "float") {
+    conf.read_float(conf_path, bites_skip);
+  } else if (std::string(conf_format) == "double") {
+    conf.read_double(conf_path, bites_skip);
+  } else if (std::string(conf_format) == "double_qc2dstag") {
     conf.read_double_qc2dstag(conf_path);
   }
 
@@ -193,7 +192,7 @@ int main(int argc, char *argv[]) {
     start_time = clock();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
-      conf.array = smearing_APE(conf.array, APE_alpha);
+      conf.array = smearing1_APE(conf.array, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
         if (wilson_enabled) {
