@@ -3,9 +3,9 @@
 #include "flux_tube.h"
 #include "link.h"
 #include "matrix.h"
-#include "result.h"
 #include "smearing.h"
 #include <iostream>
+#include <numeric>
 
 #include <ctime>
 
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
 
   conf_plaket.array.clear();
 
-  cout << "average plaket unsmeared " << plaket_time_trace << endl;
+  cout << "average plaket unsmeared " << plaket_time_average << endl;
 
   ofstream stream_flux;
   // open file
@@ -158,6 +158,7 @@ int main(int argc, char *argv[]) {
   vector<int> R_sizes = {6, 8, 12};
 
   vector<double> wilson_loop_trace;
+  double wilson_loop_average;
   std::map<int, double> flux_tmp;
   int d;
   int x_trans = 0;
@@ -241,7 +242,7 @@ int main(int argc, char *argv[]) {
     start_time = clock();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
-      conf.array = smearing1_APE(conf.array, APE_alpha);
+      conf_wilson.array = smearing1_APE(conf_wilson.array, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
         if (flux_enabled) {

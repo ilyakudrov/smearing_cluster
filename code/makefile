@@ -8,7 +8,8 @@ FLOAT=double
 FLAGS=-D DOUBLE
 GCC=/home/itep/kudrov/installed/gcc-9/bin/g++
 MATRIX=su2
-MATRIX_NONABELIAN=su2
+MATRIX_PLAKET=su2
+MATRIX_WILSON=su2
 
 all: smearing smearing_dependence smearing_dependence_potential smearing_dependence_potential_spatial
 
@@ -37,10 +38,10 @@ smearing_dependence_potential1.o: smearing_dependence_potential1.cpp
 	$(GCC) -O4 smearing_dependence_potential1.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential1.o
 
 smearing_dependence_flux_wilson: smearing_dependence_flux_wilson.o $(C_FILES)
-	$(GCC) smearing_dependence_flux_wilson.o $(OBJ_FILES) $(C_FILES) -o exe/smearing_dependence_flux_wilson_$(MATRIX_NONABELIAN)_$(MATRIX)
+	$(GCC) smearing_dependence_flux_wilson.o $(OBJ_FILES) $(C_FILES) -o exe/smearing_dependence_flux_wilson_$(MATRIX_PLAKET)_$(MATRIX_WILSON)
 	rm smearing_dependence_flux_wilson.o
 smearing_dependence_flux_wilson.o: smearing_dependence_flux_wilson.cpp
-	$(GCC) -O4 smearing_dependence_flux_wilson.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -DMATRIX_NONABELIAN=$(MATRIX_NONABELIAN) -o smearing_dependence_flux_wilson.o
+	$(GCC) -O4 smearing_dependence_flux_wilson.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX_WILSON=$(MATRIX_WILSON) -DMATRIX_PLAKET=$(MATRIX_PLAKET) -o smearing_dependence_flux_wilson.o
 
 smearing_dependence_potential_spatial: smearing_dependence_potential_spatial.o
 	$(GCC) smearing_dependence_potential_spatial.o $(OBJ_FILES) -o exe/smearing_dependence_potential_spatial_$(MATRIX)
