@@ -22,25 +22,25 @@ else:
 HYP_alpha1 = "1"
 HYP_alpha2 = "1"
 HYP_alpha3 = "0.5"
-APE_alpha = "0.7"
+APE_alpha = "0.6"
 stout_alpha = "0.15"
 APE = "1"
 HYP = "1"
 stout = "0"
-APE_steps = "160"
+APE_steps = "51"
 HYP_steps = "0"
 stout_steps = "0"
 
-calculation_step_APE = 3
+calculation_step_APE = 2
 
-number_of_jobs = 20
+number_of_jobs = 100
 
 for monopole_wilson in ['/', 'monopole', 'monopoless']:
     if monopole_wilson == '/':
         monopole2 = matrix_type
     else:
         monopole2 = monopole_wilson
-    for beta in ['2.4', '2.5', '2.6']:
+    for beta in ['2.6']:
         for mu in [""]:
             f = open(
                 f'/home/clusters/rrcmpi/kudrov/conf/{matrix_type}/{conf_type}/{conf_size}/beta{beta}/{mu}/{monopole_plaket}/parameters.json')
@@ -79,7 +79,8 @@ for monopole_wilson in ['/', 'monopole', 'monopoless']:
                 except:
                     pass
 
-                output_path = f'/home/clusters/rrcmpi/kudrov/smearing_cluster/result/smearing_test/flux_tube_wilson/{matrix_type}/{conf_type}/{conf_size}/beta{beta}/{mu}/{monopole1}-{monopole2}/{job[0]}'
+                output_path = f'/home/clusters/rrcmpi/kudrov/smearing_cluster/smearing_test/result/flux_tube_wilson/{matrix_type}/{conf_type}/{conf_size}/beta{beta}'\
+			f'/{mu}/{monopole1}-{monopole2}/HYP{HYP_steps}_alpha={HYP_alpha1}_{HYP_alpha2}_{HYP_alpha3}_APE_alpha={APE_alpha}/{job[0]}'
 
                 bashCommand = f'qsub -q long -v conf_format_plaket={conf_format_plaket},conf_format_wilson={conf_format_wilson},bites_skip_plaket={bites_skip_plaket},'\
                     f'bites_skip_wilson={bites_skip_wilson},matrix_type_plaket={matrix_type_plaket},matrix_type_wilson={matrix_type_wilson},'\

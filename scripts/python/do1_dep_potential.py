@@ -14,25 +14,27 @@ bites_skip_wilson = 0
 HYP_alpha1 = "1"
 HYP_alpha2 = "1"
 HYP_alpha3 = "0.5"
-APE_alpha = "0.7"
+APE_alpha = "0.5"
 stout_alpha = "0.15"
 APE = "1"
 HYP = "1"
 stout = "0"
-APE_steps = "160"
+APE_steps = "3"
 HYP_steps = "0"
 stout_steps = "0"
 
-calculation_step_APE = 3
+calculation_step_APE = 1
 
-number_of_jobs = 20
+number_of_jobs = 100
 
-for monopole in ['/', 'monopole', 'monopoless']:
+#for monopole in ['/', 'monopole', 'monopoless']:
+for monopole in ['monopole']:
     if monopole == '/':
         monopole1 = matrix_type
     else:
         monopole1 = monopole
-    for beta in ['2.4', '2.5', '2.6']:
+    #for beta in ['2.4', '2.5', '2.6']:
+    for beta in ['2.4']:
         for mu in [""]:
             f = open(
                 f'/home/clusters/rrcmpi/kudrov/conf/{matrix_type}/{conf_type}/{conf_size}/beta{beta}/{mu}/{monopole}/parameters.json')
@@ -62,8 +64,7 @@ for monopole in ['/', 'monopole', 'monopoless']:
                 output_path = f'/home/clusters/rrcmpi/kudrov/smearing_cluster/result/smearing_test/potential/{matrix_type}/{conf_type}/{conf_size}/beta{beta}/{mu}/{monopole1}/{job[0]}'
 
                 bashCommand = f'qsub -q long -v conf_format={conf_format},bites_skip={bites_skip},'\
-                    f'bites_skip_wilson={bites_skip_wilson},matrix_type={matrix_type},'\
-                    f'conf_path_start={conf_path_start1},conf_path_end={conf_path_end},'\
+                    f'conf_path_start={conf_path_start1},conf_path_end={conf_path_end},matrix_type={matrix_type},'\
                     f'padding={padding},L_spat={L_spat},L_time={L_time},calculation_step_APE={calculation_step_APE},'\
                     f'output_path={output_path},chain={job[0]},conf_start={job[1]},conf_end={job[2]},HYP_alpha1={HYP_alpha1},HYP_alpha2={HYP_alpha2},'\
                     f'HYP_alpha3={HYP_alpha3},APE_alpha={APE_alpha},stout_alpha={stout_alpha},APE={APE},HYP={HYP},stout={stout},HYP_steps={HYP_steps},APE_steps={APE_steps},stout_steps={stout_steps}'\
