@@ -3,6 +3,10 @@
 for((i=${conf_start};i<=${conf_end};i++))
 do
 
+if [[ ${conf_path_end} == "/" ]]; then
+conf_path_end=""
+fi
+
 conf_path="${conf_path_start}`printf %0${padding}d $i`${conf_path_end}"
 
 echo $conf_path

@@ -3,7 +3,6 @@
 #include "flux_tube.h"
 #include "link.h"
 #include "matrix.h"
-#include "result.h"
 #include "smearing.h"
 #include <iostream>
 
@@ -135,7 +134,7 @@ int main(int argc, char *argv[]) {
                   << std::endl;
   }
 
-  vector<FLOAT> wilson_loop;
+  vector<double> wilson_loop;
 
   std::vector<std::vector<int>> directions;
   directions.push_back({1, 0, 0});

@@ -11,7 +11,7 @@ MATRIX=su2
 MATRIX_PLAKET=su2
 MATRIX_WILSON=su2
 
-all: smearing smearing_dependence smearing_dependence_potential smearing_dependence_potential_spatial
+all: smearing smearing_dependence_potential smearing_dependence_flux_wilson
 
 smearing: smearing.o
 	$(GCC) smearing.o $(OBJ_FILES) $(C_FILES) -o exe/smearing_$(MATRIX)
@@ -26,7 +26,7 @@ smearing_dependence.o: smearing_dependence.cpp
 	$(GCC) -O4 smearing_dependence.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence.o
 
 smearing_dependence_potential: smearing_dependence_potential.o
-	$(GCC) smearing_dependence_potential.o $(OBJ_FILES) -o exe/smearing_dependence_potential_$(MATRIX)
+	$(GCC) smearing_dependence_potential.o $(C_FILES) $(OBJ_FILES) -o exe/smearing_dependence_potential_$(MATRIX)
 	rm smearing_dependence_potential.o
 smearing_dependence_potential.o: smearing_dependence_potential.cpp
 	$(GCC) -O4 smearing_dependence_potential.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential.o

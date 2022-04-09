@@ -121,10 +121,10 @@ int main(int argc, char *argv[]) {
          << endl;
   }
   if (APE_enabled == 1) {
-    for (int i = 0; i < APE_steps; i++) {
       start_time = clock();
+    for (int i = 0; i < APE_steps; i++) {
 
-      conf.array = smearing_APE(conf.array, APE_alpha);
+      conf.array = smearing1_APE(conf.array, APE_alpha);
       end_time = clock();
       search_time = end_time - start_time;
     }

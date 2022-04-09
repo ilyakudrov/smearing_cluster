@@ -198,12 +198,21 @@ int main(int argc, char *argv[]) {
       vector<vector<MATRIX_WILSON>> smearing_first;
       vector<vector<MATRIX_WILSON>> smearing_second;
       smearing_first = smearing_first_full(conf_wilson.array, HYP_alpha3);
+      cout<<"ok1"<<endl;
       smearing_second =
           smearing_second_full(conf_wilson.array, smearing_first, HYP_alpha2);
+      for(int i = 0;i < smearing_first.size();i++){
+        smearing_first[i].clear();
+        smearing_first[i].shrink_to_fit();
+      }
+      cout<<"ok2"<<endl;
       conf_wilson.array =
           smearing_HYP(conf_wilson.array, smearing_second, HYP_alpha1);
-      smearing_first.clear();
-      smearing_second.clear();
+      for(int i = 0;i < smearing_second.size();i++){
+        smearing_second[i].clear();
+        smearing_second[i].shrink_to_fit();
+      }
+      cout<<"ok3"<<endl;
 
       if (flux_enabled) {
         for (int i = 0; i < T_num; i++) {
