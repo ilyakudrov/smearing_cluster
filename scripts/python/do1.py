@@ -6,9 +6,9 @@ import subprocess
 import os
 
 #conf_size = "40^4"
-#conf_size = "48^4"
+conf_size = "48^4"
 #conf_size = "32^4"
-conf_size = "24^4"
+#conf_size = "24^4"
 #conf_type = "qc2dstag"
 conf_type = "su2_suzuki"
 theory_type = "su2"
@@ -24,11 +24,11 @@ theory_type = "su2"
 
 observable = 'flux'
 
-number_of_jobs = 100
+number_of_jobs = 50
 
-for monopole in ['/']:
-    for beta in ['beta2.4', 'beta2.5', 'beta2.6']:
-    #for beta in ['beta2.7']:
+for monopole in ['/', 'monopole', 'monopoless']:
+    #for beta in ['beta2.4', 'beta2.5', 'beta2.6']:
+    for beta in ['beta2.8']:
     #for beta in ['']:
         #for mu in ['mu0.20', 'mu0.25', 'mu0.30']:
         #for mu in ['mu0.25']:
@@ -68,7 +68,7 @@ for monopole in ['/']:
             APE_alpha = "0.5"
             APE = "1"
             HYP = "1"
-            APE_steps = "100"
+            APE_steps = "400"
             HYP_steps = "1"
 
             #chains = {'/': [201, 201]}
@@ -88,7 +88,7 @@ for monopole in ['/']:
                     f'{conf_type}/{conf_size}/{beta}/{mu}/{monopole}/HYP{HYP_steps}_alpha={HYP_alpha1}_{HYP_alpha2}_{HYP_alpha3}_APE{APE_steps}_alpha={APE_alpha}/{job[0]}'
 
                 #qsub -q mem4gb -l nodes=1:ppn=2
-                bashCommand = f'qsub -q long -v conf_format={conf_format},bites_skip={bites_skip},conf_path_start={conf_path_start1},conf_path_end={conf_path_end},output_path={output_path},'\
+                bashCommand = f'qsub -q mem4gb -l nodes=1:ppn=2 -v conf_format={conf_format},bites_skip={bites_skip},conf_path_start={conf_path_start1},conf_path_end={conf_path_end},output_path={output_path},'\
                     f'matrix_type={matrix_type},HYP_alpha1={HYP_alpha1},HYP_alpha2={HYP_alpha2},HYP_alpha3={HYP_alpha3},padding={padding},'\
                     f'APE_alpha={APE_alpha},APE={APE},HYP={HYP},APE_steps={APE_steps},HYP_steps={HYP_steps},'\
                     f'L_spat={L_spat},L_time={L_time},conf_start={job[1]},conf_end={job[2]}'\
