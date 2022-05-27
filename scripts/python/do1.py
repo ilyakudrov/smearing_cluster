@@ -26,7 +26,7 @@ observable = 'flux'
 
 number_of_jobs = 50
 
-for monopole in ['/', 'monopole', 'monopoless']:
+for monopole in ['monopoless', 'monopole', '/']:
     #for beta in ['beta2.4', 'beta2.5', 'beta2.6']:
     for beta in ['beta2.8']:
     #for beta in ['']:
@@ -59,12 +59,12 @@ for monopole in ['/', 'monopole', 'monopoless']:
             #APE_steps = data_smearing['APE_steps']
             #HYP_steps = data_smearing['HYP_steps']
 
-            HYP_alpha1 = "1"
-            HYP_alpha2 = "0.5"
-            HYP_alpha3 = "0.5"
-            #HYP_alpha1 = "0.75"
-            #HYP_alpha2 = "0.6"
-            #HYP_alpha3 = "0.3"
+            #HYP_alpha1 = "1"
+            #HYP_alpha2 = "1"
+            #HYP_alpha3 = "0.5"
+            HYP_alpha1 = "0.75"
+            HYP_alpha2 = "0.6"
+            HYP_alpha3 = "0.3"
             APE_alpha = "0.5"
             APE = "1"
             HYP = "1"
