@@ -134,49 +134,38 @@ int main(int argc, char *argv[]) {
                   << std::endl;
   }
 
-  vector<double> wilson_loop;
+  std::map<std::tuple<int, int>, double> wilson_loop;
 
-  std::vector<std::vector<int>> directions;
-  directions.push_back({1, 0, 0});
+  std::vector<std::vector<MATRIX>> conf_separated = separate_wilson(conf.array);
 
-  std::vector<wilson_result> wilson_offaxis_result;
+  conf.array.clear();
+  conf.array.shrink_to_fit();
 
   if (wilson_enabled) {
-    wilson_offaxis_result =
-        wilson_offaxis(conf.array, directions, R_min, R_max, T_min, T_max);
+    wilson_loop = wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
-    for (int i = 0; i < wilson_offaxis_result.size(); i++) {
-      stream_wilson << "0," << wilson_offaxis_result[i].time_size << ","
-                    << wilson_offaxis_result[i].space_size << ","
-                    << wilson_offaxis_result[i].wilson_loop << std::endl;
+    for (auto it = wilson_loops_new.begin(); it != wilson_loops_new.end();
+         it++) {
+      stream_wilson << "0," << get<0>(it->first) << "," << get<1>(it->first)
+                    << "," << it->second << std::endl;
     }
-    wilson_offaxis_result.clear();
   }
 
   if (HYP_enabled == 1) {
     start_time = clock();
     for (int HYP_step = 0; HYP_step < HYP_steps; HYP_step++) {
 
-      vector<vector<MATRIX>> smearing_first;
-      vector<vector<MATRIX>> smearing_second;
-      smearing_first = smearing_first_full(conf.array, HYP_alpha3);
-      smearing_second =
-          smearing_second_full(conf.array, smearing_first, HYP_alpha2);
-      conf.array = smearing_HYP(conf.array, smearing_second, HYP_alpha1);
-      smearing_first.clear();
-      smearing_second.clear();
+      smearing_HYP_new(conf_separated, HYP_alpha1, HYP_alpha2, HYP_alpha3);
 
       if (wilson_enabled) {
-        wilson_offaxis_result =
-            wilson_offaxis(conf.array, directions, R_min, R_max, T_min, T_max);
+        wilson_loop =
+            wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
-        for (int i = 0; i < wilson_offaxis_result.size(); i++) {
-          stream_wilson << HYP_step + 1 << ","
-                        << wilson_offaxis_result[i].time_size << ","
-                        << wilson_offaxis_result[i].space_size << ","
-                        << wilson_offaxis_result[i].wilson_loop << std::endl;
+        for (auto it = wilson_loops_new.begin(); it != wilson_loops_new.end();
+             it++) {
+          stream_wilson << "0," << get<0>(it->first) << "," << get<1>(it->first)
+                        << "," << it->second << std::endl;
         }
-        wilson_offaxis_result.clear();
       }
     }
 
@@ -191,31 +180,29 @@ int main(int argc, char *argv[]) {
     start_time = clock();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
-      conf.array = smearing1_APE(conf.array, APE_alpha);
+      smearing_APE_new(conf_separated, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
         if (wilson_enabled) {
-          wilson_offaxis_result = wilson_offaxis(conf.array, directions, R_min,
-                                                 R_max, T_min, T_max);
+          wilson_loop =
+              wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
-          for (int i = 0; i < wilson_offaxis_result.size(); i++) {
-            stream_wilson << APE_step + HYP_steps + 1 << ","
-                          << wilson_offaxis_result[i].time_size << ","
-                          << wilson_offaxis_result[i].space_size << ","
-                          << wilson_offaxis_result[i].wilson_loop << std::endl;
+          for (auto it = wilson_loops_new.begin(); it != wilson_loops_new.end();
+               it++) {
+            stream_wilson << "0," << get<0>(it->first) << ","
+                          << get<1>(it->first) << "," << it->second
+                          << std::endl;
           }
         }
-        wilson_offaxis_result.clear();
       }
-    }
 
-    end_time = clock();
-    search_time = end_time - start_time;
-    cout << "i=" << APE_steps
-         << " iteration of APE time: " << search_time * 1. / CLOCKS_PER_SEC
-         << endl;
+      end_time = clock();
+      search_time = end_time - start_time;
+      cout << "i=" << APE_steps
+           << " iteration of APE time: " << search_time * 1. / CLOCKS_PER_SEC
+           << endl;
+    }
+    if (wilson_enabled) {
+      stream_wilson.close();
+    }
   }
-  if (wilson_enabled) {
-    stream_wilson.close();
-  }
-}
