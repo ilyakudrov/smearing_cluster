@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
                   << std::endl;
   }
 
-  std::map<std::tuple<int, int>, double> wilson_loop;
+  std::map<std::tuple<int, int>, double> wilson_loops;
 
   std::vector<std::vector<MATRIX>> conf_separated = separate_wilson(conf.array);
 
@@ -144,8 +144,7 @@ int main(int argc, char *argv[]) {
   if (wilson_enabled) {
     wilson_loop = wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
-    for (auto it = wilson_loops_new.begin(); it != wilson_loops_new.end();
-         it++) {
+    for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
       stream_wilson << "0," << get<0>(it->first) << "," << get<1>(it->first)
                     << "," << it->second << std::endl;
     }
@@ -161,8 +160,7 @@ int main(int argc, char *argv[]) {
         wilson_loop =
             wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
-        for (auto it = wilson_loops_new.begin(); it != wilson_loops_new.end();
-             it++) {
+        for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
           stream_wilson << "0," << get<0>(it->first) << "," << get<1>(it->first)
                         << "," << it->second << std::endl;
         }
@@ -187,8 +185,7 @@ int main(int argc, char *argv[]) {
           wilson_loop =
               wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
-          for (auto it = wilson_loops_new.begin(); it != wilson_loops_new.end();
-               it++) {
+          for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
             stream_wilson << "0," << get<0>(it->first) << ","
                           << get<1>(it->first) << "," << it->second
                           << std::endl;
@@ -206,3 +203,4 @@ int main(int argc, char *argv[]) {
       stream_wilson.close();
     }
   }
+}
