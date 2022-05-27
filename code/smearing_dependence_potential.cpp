@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
   conf.array.shrink_to_fit();
 
   if (wilson_enabled) {
-    wilson_loop = wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
+    wilson_loops = wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
     for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
       stream_wilson << "0," << get<0>(it->first) << "," << get<1>(it->first)
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
       smearing_HYP_new(conf_separated, HYP_alpha1, HYP_alpha2, HYP_alpha3);
 
       if (wilson_enabled) {
-        wilson_loop =
+        wilson_loops =
             wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
         for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
 
       if (APE_step % calculation_step_APE == 0) {
         if (wilson_enabled) {
-          wilson_loop =
+          wilson_loops =
               wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
           for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
