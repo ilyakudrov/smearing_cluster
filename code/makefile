@@ -26,7 +26,7 @@ smearing_dependence.o: smearing_dependence.cpp
 	$(GCC) -O4 smearing_dependence.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence.o
 
 smearing_dependence_potential: smearing_dependence_potential.o
-	$(GCC) smearing_dependence_potential.o $(C_FILES) $(OBJ_FILES) -o exe/smearing_dependence_potential_$(MATRIX)
+	$(GCC) smearing_dependence_potential.o -fopenmp $(C_FILES) $(OBJ_FILES) -o exe/smearing_dependence_potential_$(MATRIX)
 	rm smearing_dependence_potential.o
 smearing_dependence_potential.o: smearing_dependence_potential.cpp
 	$(GCC) -O4 smearing_dependence_potential.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential.o

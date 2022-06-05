@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
             wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
 
         for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
-          stream_wilson << "0," << get<0>(it->first) << "," << get<1>(it->first)
+          stream_wilson << HYP_step << "," << get<0>(it->first) << "," << get<1>(it->first)
                         << "," << it->second << std::endl;
         }
       }
@@ -174,6 +174,8 @@ int main(int argc, char *argv[]) {
          << endl;
   }
 
+  int step_number;
+
   if (APE_enabled == 1) {
     start_time = clock();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
@@ -184,9 +186,11 @@ int main(int argc, char *argv[]) {
         if (wilson_enabled) {
           wilson_loops =
               wilson_parallel(conf_separated, R_min, R_max, T_min, T_max);
+          if(HYP_enabled == 1) step_number = HYP_steps +  APE_step;
+          else step_number = APE_step;
 
           for (auto it = wilson_loops.begin(); it != wilson_loops.end(); it++) {
-            stream_wilson << "0," << get<0>(it->first) << ","
+            stream_wilson << step_number << "," << get<0>(it->first) << ","
                           << get<1>(it->first) << "," << it->second
                           << std::endl;
           }
