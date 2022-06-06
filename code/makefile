@@ -5,7 +5,7 @@ OBJ_FILES=$(OBJ_PATH)/link.o $(OBJ_PATH)/data.o $(OBJ_PATH)/matrix.o $(OBJ_PATH)
 C_PATH=/home/clusters/rrcmpi/kudrov/general_code/lib/cpu/src/c-lime
 C_FILES=$(C_PATH)/lime_fseeko.c  $(C_PATH)/lime_header.c  $(C_PATH)/lime_reader.c  $(C_PATH)/lime_utils.c  $(C_PATH)/lime_writer.c
 FLOAT=double
-FLAGS=-D DOUBLE
+FLAGS=-D DOUBLE -fopenmp
 GCC=/home/itep/kudrov/installed/gcc-9/bin/g++
 MATRIX=su2
 MATRIX_PLAKET=su2
@@ -32,7 +32,7 @@ smearing_dependence_potential.o: smearing_dependence_potential.cpp
 	$(GCC) -O4 smearing_dependence_potential.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX=$(MATRIX) -o smearing_dependence_potential.o
 
 smearing_dependence_flux_wilson: smearing_dependence_flux_wilson.o $(C_FILES)
-	$(GCC) smearing_dependence_flux_wilson.o $(OBJ_FILES) $(C_FILES) -o exe/smearing_dependence_flux_wilson_$(MATRIX_PLAKET)_$(MATRIX_WILSON)
+	$(GCC) smearing_dependence_flux_wilson.o -fopenmp $(OBJ_FILES) $(C_FILES) -o exe/smearing_dependence_flux_wilson_$(MATRIX_PLAKET)_$(MATRIX_WILSON)
 	rm smearing_dependence_flux_wilson.o
 smearing_dependence_flux_wilson.o: smearing_dependence_flux_wilson.cpp
 	$(GCC) -O4 smearing_dependence_flux_wilson.cpp $(FLAGS) -c -I$(INCLUDE_PATH) -DMATRIX_WILSON=$(MATRIX_WILSON) -DMATRIX_PLAKET=$(MATRIX_PLAKET) -o smearing_dependence_flux_wilson.o
