@@ -4,10 +4,11 @@
 #include "link.h"
 #include "matrix.h"
 #include "smearing.h"
-#include <iostream>
-#include <numeric>
 
 #include <ctime>
+#include <iostream>
+#include <numeric>
+#include <omp.h>
 
 using namespace std;
 
@@ -17,9 +18,9 @@ int z_size;
 int t_size;
 
 int main(int argc, char *argv[]) {
-  unsigned int start_time;
-  unsigned int end_time;
-  unsigned int search_time;
+  double start_time;
+  double end_time;
+  double search_time;
 
   std::string conf_format_plaket;
   std::string conf_format_wilson;
@@ -38,6 +39,8 @@ int main(int argc, char *argv[]) {
   int calculation_step_APE;
   int bites_skip_plaket = 0;
   int bites_skip_wilson = 0;
+  double T_min, T_max;
+  double R_min, R_max;
   for (int i = 1; i < argc; i++) {
     if (string(argv[i]) == "-conf_format_plaket") {
       conf_format_plaket = argv[++i];
@@ -81,6 +84,14 @@ int main(int argc, char *argv[]) {
       flux_path = argv[++i];
     } else if (std::string(argv[i]) == "-calculation_step_APE") {
       calculation_step_APE = stoi(std::string(argv[++i]));
+    } else if (string(argv[i]) == "-T_min") {
+      T_min = atof(argv[++i]);
+    } else if (string(argv[i]) == "-T_max") {
+      T_max = atof(argv[++i]);
+    } else if (string(argv[i]) == "-R_min") {
+      R_min = atof(argv[++i]);
+    } else if (string(argv[i]) == "-R_max") {
+      R_max = atof(argv[++i]);
     }
   }
 
@@ -113,6 +124,10 @@ int main(int argc, char *argv[]) {
   cout << "flux_path " << flux_path << endl;
   cout << "flux_enabled " << flux_enabled << endl;
   std::cout << "calculation_step_APE " << calculation_step_APE << std::endl;
+  cout << "T_min " << T_min << endl;
+  cout << "T_max " << T_max << endl;
+  cout << "R_min " << R_min << endl;
+  cout << "R_max " << R_max << endl;
   cout << endl;
 
   data<MATRIX_PLAKET> conf_plaket;
@@ -134,14 +149,27 @@ int main(int argc, char *argv[]) {
     conf_wilson.read_double_qc2dstag(conf_path_wilson);
   }
 
-  vector<double> plaket_time_trace =
-      calculate_plaket_time_tr(conf_plaket.array);
-
-  double plaket_time_average =
-      accumulate(plaket_time_trace.cbegin(), plaket_time_trace.cend(), 0.0) /
-      plaket_time_trace.size();
+  std::vector<std::vector<MATRIX_PLAKET>> separated_plaket =
+      separate_wilson(conf_plaket.array);
 
   conf_plaket.array.clear();
+  conf_plaket.array.shrink_to_fit();
+
+  double plaket_time = plaket_time_parallel(separated_plaket);
+
+  std::vector<double> plaket_time_tr = plaket_aver_tr_time(separated_plaket);
+
+  separated_plaket.array.clear();
+  separated_plaket.array.shrink_to_fit();
+
+  std::map<std::tuple<int, int, int>, double> flux_tube;
+  std::map<std::tuple<int, int>, double> wilson_loops;
+
+  std::vector<std::vector<MATRIX_PLAKET>> separated_wilson =
+      separate_wilson(conf_wilson.array);
+
+  conf_wilson.array.clear();
+  conf_wilson.array.shrink_to_fit();
 
   cout << "average plaket unsmeared " << plaket_time_average << endl;
 
@@ -149,145 +177,93 @@ int main(int argc, char *argv[]) {
   // open file
   if (flux_enabled) {
     stream_flux.open(flux_path);
+    tream_flux << "smearing_step,time_size,space_size,d,correlator_electric,"
+                  "wilson_loop,plaket"
+               << std::endl;
   }
-
-  int T_num = 5;
-  int R_num = 3;
-
-  vector<int> T_sizes = {4, 6, 8, 10, 12};
-  vector<int> R_sizes = {6, 8, 12};
-
-  vector<double> wilson_loop_trace;
-  double wilson_loop_average;
-  std::map<int, double> flux_tmp;
-  int d;
-  int x_trans = 0;
-  int T, R;
 
   if (flux_enabled) {
 
-    stream_flux << "smearing_step,T,R,d,correlator,wilson,plaket" << endl;
+    wilson_loops =
+        wilson_parallel(separated_wilson, R_min, R_max, T_min, T_max);
 
-    for (int i = 0; i < T_num; i++) {
-      T = T_sizes[i];
-      for (int j = 0; j < R_num; j++) {
-        R = R_sizes[j];
-        d = R / 2;
-        wilson_loop_trace = calculate_wilson_loop_tr(conf_wilson.array, R, T);
-        wilson_loop_average = accumulate(wilson_loop_trace.cbegin(),
-                                         wilson_loop_trace.cend(), 0.0) /
-                              wilson_loop_trace.size();
-        flux_tmp = wilson_plaket_correlator_electric(
-            wilson_loop_trace, plaket_time_trace, R, T, x_trans, 0, 0);
-        stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[0]
-                    << "," << wilson_loop_average << "," << plaket_time_average
-                    << endl;
-        flux_tmp = wilson_plaket_correlator_electric(
-            wilson_loop_trace, plaket_time_trace, R, T, x_trans, d, d);
-        stream_flux << "0," << T << "," << R << "," << d << "," << flux_tmp[d]
-                    << "," << wilson_loop_average << "," << plaket_time_average
-                    << endl;
-      }
+    flux_tube =
+        wilson_plaket_correlator(plaket_time_tr, separated_wilson, T_min, T_max,
+                                 R_min, R_max, 5, 0, "longitudinal");
+
+    for (auto it = flux_tube.begin(); it != flux_tube.end(); it++) {
+      stream_wilson << 0 << "," << get<0>(it->first) << "," << get<1>(it->first)
+                    << "," << get<2>(it->first) << "," << it->second << ","
+                    << wilson_loops[std::tuple<int, int>(get<0>(it->first),
+                                                         get<1>(it->first))]
+                    << "," << plaket_time << std::endl;
     }
   }
 
   if (HYP_enabled == 1) {
-    start_time = clock();
+    start_time = omp_get_wtime();
     for (int HYP_step = 0; HYP_step < HYP_steps; HYP_step++) {
 
-      vector<vector<MATRIX_WILSON>> smearing_first;
-      vector<vector<MATRIX_WILSON>> smearing_second;
-      smearing_first = smearing_first_full(conf_wilson.array, HYP_alpha3);
-      cout<<"ok1"<<endl;
-      smearing_second =
-          smearing_second_full(conf_wilson.array, smearing_first, HYP_alpha2);
-      for(int i = 0;i < smearing_first.size();i++){
-        smearing_first[i].clear();
-        smearing_first[i].shrink_to_fit();
-      }
-      cout<<"ok2"<<endl;
-      conf_wilson.array =
-          smearing_HYP(conf_wilson.array, smearing_second, HYP_alpha1);
-      for(int i = 0;i < smearing_second.size();i++){
-        smearing_second[i].clear();
-        smearing_second[i].shrink_to_fit();
-      }
-      cout<<"ok3"<<endl;
+      smearing_HYP_new(separated_wilson, HYP_alpha1, HYP_alpha2, HYP_alpha3);
 
       if (flux_enabled) {
-        for (int i = 0; i < T_num; i++) {
-          T = T_sizes[i];
-          for (int j = 0; j < R_num; j++) {
-            R = R_sizes[j];
-            d = R / 2;
-            wilson_loop_trace =
-                calculate_wilson_loop_tr(conf_wilson.array, R, T);
-            wilson_loop_average = accumulate(wilson_loop_trace.cbegin(),
-                                             wilson_loop_trace.cend(), 0.0) /
-                                  wilson_loop_trace.size();
-            flux_tmp = wilson_plaket_correlator_electric(
-                wilson_loop_trace, plaket_time_trace, R, T, x_trans, 0, 0);
-            stream_flux << HYP_step + 1 << "," << T << "," << R << "," << 0
-                        << "," << flux_tmp[0] << "," << wilson_loop_average
-                        << "," << plaket_time_average << endl;
-            flux_tmp = wilson_plaket_correlator_electric(
-                wilson_loop_trace, plaket_time_trace, R, T, x_trans, d, d);
-            stream_flux << HYP_step + 1 << "," << T << "," << R << "," << d
-                        << "," << flux_tmp[d] << "," << wilson_loop_average
-                        << "," << plaket_time_average << endl;
-          }
+
+        wilson_loops =
+            wilson_parallel(separated_wilson, R_min, R_max, T_min, T_max);
+
+        flux_tube =
+            wilson_plaket_correlator(plaket_time_tr, separated_wilson, T_min,
+                                     T_max, R_min, R_max, 5, 0, "longitudinal");
+
+        for (auto it = flux_tube.begin(); it != flux_tube.end(); it++) {
+          stream_wilson << HYP_step + 1 << "," << get<0>(it->first) << ","
+                        << get<1>(it->first) << "," << get<2>(it->first) << ","
+                        << it->second << ","
+                        << wilson_loops[std::tuple<int, int>(get<0>(it->first),
+                                                             get<1>(it->first))]
+                        << "," << plaket_time << std::endl;
         }
       }
     }
 
-    end_time = clock();
+    end_time = omp_get_wtime();
     search_time = end_time - start_time;
-    cout << "i=" << HYP_steps
-         << " iterations of HYP time: " << search_time * 1. / CLOCKS_PER_SEC
-         << endl;
+    std::cout << "i=" << HYP_steps << " iterations of HYP time: " << search_time
+              << std::endl;
   }
 
   if (APE_enabled == 1) {
-    start_time = clock();
+    start_time = omp_get_wtime();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
-      conf_wilson.array = smearing1_APE(conf_wilson.array, APE_alpha);
+      smearing_APE_new(separated_wilson, APE_alpha);
 
       if (APE_step % calculation_step_APE == 0) {
         if (flux_enabled) {
-          for (int i = 0; i < T_num; i++) {
-            T = T_sizes[i];
-            for (int j = 0; j < R_num; j++) {
-              R = R_sizes[j];
-              d = R / 2;
-              wilson_loop_trace =
-                  calculate_wilson_loop_tr(conf_wilson.array, R, T);
-              wilson_loop_average = accumulate(wilson_loop_trace.cbegin(),
-                                               wilson_loop_trace.cend(), 0.0) /
-                                    wilson_loop_trace.size();
-              flux_tmp = wilson_plaket_correlator_electric(
-                  wilson_loop_trace, plaket_time_trace, R, T, x_trans, 0, 0);
-              stream_flux << APE_step + HYP_steps + 1 << "," << T << "," << R
-                          << "," << 0 << "," << flux_tmp[0] << ","
-                          << wilson_loop_average << "," << plaket_time_average
-                          << endl;
-              flux_tmp = wilson_plaket_correlator_electric(
-                  wilson_loop_trace, plaket_time_trace, R, T, x_trans, d, d);
-              stream_flux << APE_step + HYP_steps + 1 << "," << T << "," << R
-                          << "," << d << "," << flux_tmp[d] << ","
-                          << wilson_loop_average << "," << plaket_time_average
-                          << endl;
-            }
+
+          wilson_loops =
+              wilson_parallel(separated_wilson, R_min, R_max, T_min, T_max);
+
+          flux_tube = wilson_plaket_correlator(plaket_time_tr, separated_wilson,
+                                               T_min, T_max, R_min, R_max, 5, 0,
+                                               "longitudinal");
+
+          for (auto it = flux_tube.begin(); it != flux_tube.end(); it++) {
+            stream_wilson << HYP_step << "," << get<0>(it->first) << ","
+                          << get<1>(it->first) << "," << get<2>(it->first)
+                          << "," << it->second << ","
+                          << wilson_loops[std::tuple<int, int>(
+                                 get<0>(it->first), get<1>(it->first))]
+                          << "," << plaket_time << std::endl;
           }
         }
       }
     }
 
-    end_time = clock();
+    end_time = omp_get_wtime();
     search_time = end_time - start_time;
-    cout << "i=" << APE_steps
-         << " iteration of APE time: " << search_time * 1. / CLOCKS_PER_SEC
-         << endl;
+    std::cout << "i=" << APE_steps << " iteration of APE time: " << search_time
+              << std::endl;
   }
   if (flux_enabled) {
     stream_flux.close();
