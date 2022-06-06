@@ -159,8 +159,10 @@ int main(int argc, char *argv[]) {
 
   std::vector<double> plaket_time_tr = plaket_aver_tr_time(separated_plaket);
 
-  separated_plaket.array.clear();
-  separated_plaket.array.shrink_to_fit();
+  cout << "plaket time = " << plaket_time_tr << endl;
+
+  separated_plaketclear();
+  separated_plaket.shrink_to_fit();
 
   std::map<std::tuple<int, int, int>, double> flux_tube;
   std::map<std::tuple<int, int>, double> wilson_loops;
@@ -171,15 +173,13 @@ int main(int argc, char *argv[]) {
   conf_wilson.array.clear();
   conf_wilson.array.shrink_to_fit();
 
-  cout << "average plaket unsmeared " << plaket_time_average << endl;
-
   ofstream stream_flux;
   // open file
   if (flux_enabled) {
     stream_flux.open(flux_path);
-    tream_flux << "smearing_step,time_size,space_size,d,correlator_electric,"
-                  "wilson_loop,plaket"
-               << std::endl;
+    stream_flux << "smearing_step,time_size,space_size,d,correlator_electric,"
+                   "wilson_loop,plaket"
+                << std::endl;
   }
 
   if (flux_enabled) {
@@ -192,11 +192,11 @@ int main(int argc, char *argv[]) {
                                  R_min, R_max, 5, 0, "longitudinal");
 
     for (auto it = flux_tube.begin(); it != flux_tube.end(); it++) {
-      stream_wilson << 0 << "," << get<0>(it->first) << "," << get<1>(it->first)
-                    << "," << get<2>(it->first) << "," << it->second << ","
-                    << wilson_loops[std::tuple<int, int>(get<0>(it->first),
-                                                         get<1>(it->first))]
-                    << "," << plaket_time << std::endl;
+      stream_flux << 0 << "," << get<0>(it->first) << "," << get<1>(it->first)
+                  << "," << get<2>(it->first) << "," << it->second << ","
+                  << wilson_loops[std::tuple<int, int>(get<0>(it->first),
+                                                       get<1>(it->first))]
+                  << "," << plaket_time << std::endl;
     }
   }
 
@@ -216,12 +216,12 @@ int main(int argc, char *argv[]) {
                                      T_max, R_min, R_max, 5, 0, "longitudinal");
 
         for (auto it = flux_tube.begin(); it != flux_tube.end(); it++) {
-          stream_wilson << HYP_step + 1 << "," << get<0>(it->first) << ","
-                        << get<1>(it->first) << "," << get<2>(it->first) << ","
-                        << it->second << ","
-                        << wilson_loops[std::tuple<int, int>(get<0>(it->first),
-                                                             get<1>(it->first))]
-                        << "," << plaket_time << std::endl;
+          stream_flux << HYP_step + 1 << "," << get<0>(it->first) << ","
+                      << get<1>(it->first) << "," << get<2>(it->first) << ","
+                      << it->second << ","
+                      << wilson_loops[std::tuple<int, int>(get<0>(it->first),
+                                                           get<1>(it->first))]
+                      << "," << plaket_time << std::endl;
         }
       }
     }
@@ -233,6 +233,8 @@ int main(int argc, char *argv[]) {
   }
 
   if (APE_enabled == 1) {
+
+    int step_number;
     start_time = omp_get_wtime();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
@@ -240,6 +242,11 @@ int main(int argc, char *argv[]) {
 
       if (APE_step % calculation_step_APE == 0) {
         if (flux_enabled) {
+
+          if (HYP_enabled == 1)
+            step_number = HYP_steps + APE_step + 1;
+          else
+            step_number = APE_step + 1;
 
           wilson_loops =
               wilson_parallel(separated_wilson, R_min, R_max, T_min, T_max);
@@ -249,12 +256,12 @@ int main(int argc, char *argv[]) {
                                                "longitudinal");
 
           for (auto it = flux_tube.begin(); it != flux_tube.end(); it++) {
-            stream_wilson << HYP_step << "," << get<0>(it->first) << ","
-                          << get<1>(it->first) << "," << get<2>(it->first)
-                          << "," << it->second << ","
-                          << wilson_loops[std::tuple<int, int>(
-                                 get<0>(it->first), get<1>(it->first))]
-                          << "," << plaket_time << std::endl;
+            stream_flux << step_number << "," << get<0>(it->first) << ","
+                        << get<1>(it->first) << "," << get<2>(it->first) << ","
+                        << it->second << ","
+                        << wilson_loops[std::tuple<int, int>(get<0>(it->first),
+                                                             get<1>(it->first))]
+                        << "," << plaket_time << std::endl;
           }
         }
       }

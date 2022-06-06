@@ -174,9 +174,9 @@ int main(int argc, char *argv[]) {
          << endl;
   }
 
-  int step_number;
-
   if (APE_enabled == 1) {
+
+    int step_number;
     start_time = clock();
     for (int APE_step = 0; APE_step < APE_steps; APE_step++) {
 
