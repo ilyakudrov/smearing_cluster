@@ -159,9 +159,9 @@ int main(int argc, char *argv[]) {
 
   std::vector<double> plaket_time_tr = plaket_aver_tr_time(separated_plaket);
 
-  cout << "plaket time = " << plaket_time_tr << endl;
+  cout << "plaket time = " << plaket_time << endl;
 
-  separated_plaketclear();
+  separated_plaket.clear();
   separated_plaket.shrink_to_fit();
 
   std::map<std::tuple<int, int, int>, double> flux_tube;
