@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
   std::map<std::tuple<int, int, int>, double> flux_tube;
   std::map<std::tuple<int, int>, double> wilson_loops;
 
-  std::vector<std::vector<MATRIX_PLAKET>> separated_wilson =
+  std::vector<std::vector<MATRIX_WILSON>> separated_wilson =
       separate_wilson(conf_wilson.array);
 
   conf_wilson.array.clear();
